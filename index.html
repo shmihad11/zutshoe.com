@@ -1364,6 +1364,7 @@
                     </div>
                 </div><button class="cta" id="modalAddCart">Add to Cart</button><button class="cta" id="modalOrder">Buy
                     Now ↗</button>
+                <button class="outline" id="modalShare" style="margin-top: 10px;">Share Product ↗</button>
             </div>
         </div>
     </div>
@@ -1428,6 +1429,25 @@
         {category: "children", name: "Little Classic", price: "৳ 1,150", desc: "A clean and easy everyday shoe for kids.", img: "https://images.unsplash.com/photo-1507464098880-e367bc5d2c08?w=900&q=85", tag: "Everyday", sizes: ["28", "29", "30", "31", "32"], colors: ["White", "Grey", "Navy"]}
     ];
 
+    document.getElementById("modalShare").addEventListener("click", () => {
+    if (!selectedProduct) return;
+    
+    const shareData = {
+        title: selectedProduct.name + " | Zutshoe",
+        text: `Check out ${selectedProduct.name} for ${selectedProduct.price} at Zutshoe!`,
+        url: window.location.href
+    };
+
+    if (navigator.share) {
+        // Opens phone's native share menu (WhatsApp, Facebook, Messenger, etc.)
+        navigator.share(shareData).catch(() => {});
+    } else {
+        // Fallback for desktop browsers: copies the page link
+        navigator.clipboard.writeText(window.location.href);
+        showToast("Product link copied to clipboard!");
+    }
+});
+        
     const WHATSAPP_NUMBER = "8801799208582"; 
     let selectedProduct = null, selectedColor = "", selectedSize = ""; 
     let cart = JSON.parse(localStorage.getItem("zutshoeCart") || "[]");
