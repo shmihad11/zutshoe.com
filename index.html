@@ -797,11 +797,24 @@
         .order-card {
             background: #fff;
             width: min(560px, 100%);
-            max-height: 92vh;
-            overflow: auto;
-            position: relative
+            max-height: 85vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
         }
 
+        .order-card .order-head,
+        .order-card .order-summary {
+            flex-shrink: 0;
+        }
+        .order-form {
+            padding: 22px 28px 28px;
+            display: grid;
+            gap: 13px;
+            overflow-y: auto;
+            flex-grow: 1;
+        }
         .order-head {
             padding: 28px 28px 18px;
             border-bottom: 1px solid var(--line)
