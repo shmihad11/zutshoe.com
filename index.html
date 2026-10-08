@@ -360,7 +360,7 @@
 
         .product-grid {
             display: grid;
-            grid-template-columns: repeat(3, minmax(0, 1fr));
+            grid-template-columns: repeat(4, minmax(0, 1fr));
             gap: 14px
         }
 
@@ -414,7 +414,7 @@
         }
 
         .price {
-            font-size: 12px;
+            font-size: 16px;
             font-weight: 800
         }
 
@@ -1455,9 +1455,11 @@
             {category: "men", name: "Street Runner", price: "৳ 799", desc: "A versatile sneaker for everyday outfits and casual street style. Confirm current stock before ordering.", img: "A01.png", tag: "A01", sizes: ["39", "40", "41", "42", "43", "44"], colors: ["Black", "White", "Red"]},
             {category: "men", name: "Classic Low", price: "৳ 699", desc: "A clean low-profile style made for everyday casual wear.", img: "A02.png", tag: "Everyday", sizes: ["39", "40", "41", "42", "43", "44"], colors: ["Black", "Brown"]},
             {category: "men", name: "Urban Move", price: "৳ 450", desc: "A sporty everyday sneaker concept for busy days and active outfits.", img: "A09.png", tag: "Popular", sizes: ["40", "41", "42", "43", "44"], colors: ["Black", "Grey", "White"]},
-            {category: "men", name: "Daily Flex", price: "৳ 1,450", desc: "An easy-to-style casual pair for daily use.", img: "https://images.unsplash.com/photo-1495555961986-6d4c1ecb7be3?w=900&q=85", tag: "New", sizes: ["39", "40", "41", "42", "43"], colors: ["White", "Black"]},
-            {category: "men", name: "Runner Pro", price: "৳ 2,350", desc: "A modern sporty silhouette for comfortable everyday movement.", img: "https://images.unsplash.com/photo-1552346154-21d32810aba3?w=900&q=85", tag: "New", sizes: ["40", "41", "42", "43", "44"], colors: ["Orange", "Black", "White"]},
-            {category: "men", name: "Street Core", price: "৳ 1,950", desc: "A bold casual sneaker designed for street-inspired looks.", img: "https://images.unsplash.com/photo-1549298916-b41d501d3772?w=900&q=85", tag: "Popular", sizes: ["39", "40", "41", "42", "43"], colors: ["Black", "White", "Grey"]},
+            {category: "men", name: "Daily Flex", price: "৳ 1,450", desc: "An easy-to-style casual pair for daily use.", img: "A15.png", tag: "New", sizes: ["39", "40", "41", "42", "43"], colors: ["White", "Black"]},
+            {category: "men", name: "Runner Pro", price: "৳ 2,350", desc: "A modern sporty silhouette for comfortable everyday movement.", img: "A08.png", tag: "New", sizes: ["40", "41", "42", "43", "44"], colors: ["Orange", "Black", "White"]},
+            {category: "men", name: "Street Core", price: "৳ 1,950", desc: "A bold casual sneaker designed for street-inspired looks.", img: "A14.png", tag: "Popular", sizes: ["39", "40", "41", "42", "43"], colors: ["Black", "White", "Grey"]},
+            {category: "men", name: "Street Core", price: "৳ 1,950", desc: "A bold casual sneaker designed for street-inspired looks.", img: "A11.png", tag: "Popular", sizes: ["39", "40", "41", "42", "43"], colors: ["Black", "White", "Grey"]},
+            {category: "men", name: "Street Core", price: "৳ 1,950", desc: "A bold casual sneaker designed for street-inspired looks.", img: "A06.png", tag: "Popular", sizes: ["39", "40", "41", "42", "43"], colors: ["Black", "White", "Grey"]},
             {category: "women", name: "City Step", price: "৳ 1,750", desc: "A clean everyday style that works with casual and modern outfits.", img: "https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=900&q=85", tag: "Featured", sizes: ["36", "37", "38", "39", "40"], colors: ["White", "Black", "Beige"]},
             {category: "women", name: "Soft Walk", price: "৳ 1,550", desc: "A simple and comfortable pair for everyday plans.", img: "https://images.unsplash.com/photo-1495555961986-6d4c1ecb7be3?w=900&q=85", tag: "Everyday", sizes: ["36", "37", "38", "39", "40"], colors: ["White", "Pink", "Black"]},
             {category: "women", name: "Street Muse", price: "৳ 2,050", desc: "A fashion-forward sneaker style with an easy everyday feel.", img: "https://images.unsplash.com/photo-1460353581641-37baddab0fa2?w=900&q=85", tag: "Popular", sizes: ["36", "37", "38", "39", "40"], colors: ["White", "Navy", "Black"]},
@@ -1476,7 +1478,7 @@
         function showToast(message) {toast.textContent = message; toast.classList.add("show"); clearTimeout(window.toastTimer); window.toastTimer = setTimeout(() => toast.classList.remove("show"), 2800)}
         function openModal(modal) {modal.classList.add("show"); document.body.classList.add("modal-open")}
         function closeModal(modal) {modal.classList.remove("show"); if (!document.querySelector(".modal.show")) document.body.classList.remove("modal-open")}
-        function renderCategory(category, gridId) {const grid = document.getElementById(gridId); products.filter(p => p.category === category).forEach((p, index) => {const el = document.createElement("article"); el.className = "product" + (index >= 3 ? " hidden-product" : ""); el.innerHTML = `<div class="product-photo"><img src="${p.img}" alt="${p.name} footwear product" loading="lazy"><span class="tag">${p.tag}</span></div><div class="product-info"><h4>${p.name}</h4><div class="price">${p.price}</div><small>Sizes & colors available</small><button class="outline" data-index="${products.indexOf(p)}">View details</button></div>`; grid.appendChild(el)})}
+        function renderCategory(category, gridId) {const grid = document.getElementById(gridId); products.filter(p => p.category === category).forEach((p, index) => {const el = document.createElement("article"); el.className = "product" + (index >= 4 ? " hidden-product" : ""); el.innerHTML = `<div class="product-photo"><img src="${p.img}" alt="${p.name} footwear product" loading="lazy"><span class="tag">${p.tag}</span></div><div class="product-info"><h4>${p.name}</h4><div class="price">${p.price}</div><small>Sizes & colors available</small><button class="outline" data-index="${products.indexOf(p)}">View details</button></div>`; grid.appendChild(el)})}
         renderCategory("men", "menGrid"); renderCategory("women", "womenGrid"); renderCategory("children", "childrenGrid");
         document.querySelectorAll(".see-more").forEach(button => button.addEventListener("click", () => {document.getElementById(button.dataset.grid).querySelectorAll(".hidden-product").forEach(p => p.classList.remove("hidden-product")); button.classList.add("is-expanded")}));
         document.querySelectorAll(".product-grid").forEach(grid => grid.addEventListener("click", event => {const button = event.target.closest("button[data-index]"); if (!button) return; selectedProduct = products[Number(button.dataset.index)]; selectedColor = selectedProduct.colors[0]; selectedSize = selectedProduct.sizes[0]; document.getElementById("modalImg").src = selectedProduct.img; document.getElementById("modalImg").alt = selectedProduct.name; document.getElementById("modalName").textContent = selectedProduct.name; document.getElementById("modalPrice").textContent = selectedProduct.price; document.getElementById("modalDesc").textContent = selectedProduct.desc; document.getElementById("modalCategory").textContent = selectedProduct.category === "men" ? "Men's · Product details" : selectedProduct.category === "women" ? "Women's · Product details" : "Kid's · Product details"; document.getElementById("modalSizes").innerHTML = selectedProduct.sizes.map((size, index) => `<button type="button" class="size-option ${index === 0 ? "active" : ""}" data-size="${size}">${size}</button>`).join(""); document.getElementById("modalColors").innerHTML = selectedProduct.colors.map((color, index) => `<button type="button" class="color-option ${index === 0 ? "active" : ""}" data-color="${color}">${color}</button>`).join(""); document.getElementById("modalQty").value = 1; openModal(productModal)}));
