@@ -879,47 +879,6 @@
             resize: vertical
         }
 
-        .location-box {
-            border: 1px solid #ddd;
-            padding: 13px;
-            background: #fafafa
-        }
-
-        .location-status {
-            font-size: 10px;
-            color: #777;
-            line-height: 1.5;
-            margin: 0 0 9px
-        }
-
-        .location-btn {
-            width: 100%;
-            border: 1px solid #111;
-            background: #fff;
-            padding: 11px;
-            font-size: 10px;
-            font-weight: 800;
-            letter-spacing: .08em;
-            text-transform: uppercase
-        }
-
-        .location-btn:hover {
-            background: #111;
-            color: #fff
-        }
-
-        .location-link {
-            display: none;
-            margin-top: 9px;
-            font-size: 10px;
-            word-break: break-all;
-            color: #555
-        }
-
-        .location-link.show {
-            display: block
-        }
-
         .order-submit {
             width: 100%
         }
@@ -1421,6 +1380,7 @@
                     WhatsApp ↗</button><button class="outline" id="cartContinue">Continue Shopping</button></div>
         </div>
     </div>
+
     <div class="modal" id="orderModal" role="dialog" aria-modal="true" aria-label="Customer order information">
         <div class="order-card"><button class="close" id="closeOrderModal" aria-label="Close">×</button>
             <div class="order-head"><span class="eyebrow">Complete your order</span>
@@ -1437,63 +1397,222 @@
                             inputmode="tel" placeholder="01XXXXXXXXX"></label></div>
                 <div class="form-group"><label>Delivery address<textarea id="customerAddress" name="address" required
                             placeholder="Enter your complete delivery address"></textarea></label></div>
-                <div class="form-group"><label>Live location</label>
-                    <div class="location-box">
-                        <p class="location-status" id="locationStatus">Click below to share your current location.</p>
-                        <button class="location-btn" type="button" id="locationBtn">Get Live Location ↗</button><a
-                            class="location-link" id="locationLink" href="#" target="_blank" rel="noopener">Open
-                            location in Google Maps</a>
-                    </div>
-                </div><button class="cta order-submit" type="submit">Order on WhatsApp ↗</button>
+                <button class="cta order-submit" type="submit">Order on WhatsApp ↗</button>
             </form>
         </div>
     </div>
+    
     <div class="toast" id="toast"></div>
 
     <script>
-        const products = [
-            {category: "men", name: "Street Runner", price: "৳ 790", desc: "A versatile sneaker for everyday outfits and casual street style. Confirm current stock before ordering.", img: "A01.png", tag: "A01", sizes: ["39", "40", "41", "42", "43", "44"], colors: ["Black", "White", "Red"]},
-            {category: "men", name: "Classic Low", price: "৳ 699", desc: "A clean low-profile style made for everyday casual wear.", img: "A02.png", tag: "Everyday", sizes: ["39", "40", "41", "42", "43", "44"], colors: ["Black", "Brown"]},
-            {category: "men", name: "Urban Move", price: "৳ 450", desc: "A sporty everyday sneaker concept for busy days and active outfits.", img: "A09.png", tag: "Popular", sizes: ["40", "41", "42", "43", "44"], colors: ["Black", "Grey", "White"]},
-            {category: "men", name: "Daily Flex", price: "৳ 650", desc: "An easy-to-style casual pair for daily use.", img: "A15.png", tag: "New", sizes: ["40", "41", "42", "43"], colors: ["Light"]},
-            {category: "men", name: "Runner Pro", price: "৳ 2,350", desc: "A modern sporty silhouette for comfortable everyday movement.", img: "A08.png", tag: "New", sizes: ["40", "41", "42", "43", "44"], colors: ["Orange", "Black", "White"]},
-            {category: "men", name: "Street Core", price: "৳ 1,950", desc: "A bold casual sneaker designed for street-inspired looks.", img: "A14.png", tag: "Popular", sizes: ["39", "40", "41", "42", "43"], colors: ["Black", "White", "Grey"]},
-            {category: "men", name: "Street Core", price: "৳ 1,950", desc: "A bold casual sneaker designed for street-inspired looks.", img: "A11.png", tag: "Popular", sizes: ["39", "40", "41", "42", "43"], colors: ["Black", "White", "Grey"]},
-            {category: "men", name: "Street Core", price: "৳ 1,950", desc: "A bold casual sneaker designed for street-inspired looks.", img: "A06.png", tag: "Popular", sizes: ["39", "40", "41", "42", "43"], colors: ["Black", "White", "Grey"]},
-            {category: "women", name: "City Step", price: "৳ 1,750", desc: "A clean everyday style that works with casual and modern outfits.", img: "https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=900&q=85", tag: "Featured", sizes: ["36", "37", "38", "39", "40"], colors: ["White", "Black", "Beige"]},
-            {category: "women", name: "Soft Walk", price: "৳ 1,550", desc: "A simple and comfortable pair for everyday plans.", img: "https://images.unsplash.com/photo-1495555961986-6d4c1ecb7be3?w=900&q=85", tag: "Everyday", sizes: ["36", "37", "38", "39", "40"], colors: ["White", "Pink", "Black"]},
-            {category: "women", name: "Street Muse", price: "৳ 2,050", desc: "A fashion-forward sneaker style with an easy everyday feel.", img: "https://images.unsplash.com/photo-1460353581641-37baddab0fa2?w=900&q=85", tag: "Popular", sizes: ["36", "37", "38", "39", "40"], colors: ["White", "Navy", "Black"]},
-            {category: "women", name: "Daily Glow", price: "৳ 1,650", desc: "A versatile pair for casual outfits and daily movement.", img: "https://images.unsplash.com/photo-1560769629-975ec94e6a86?w=900&q=85", tag: "New", sizes: ["36", "37", "38", "39"], colors: ["White", "Orange", "Black"]},
-            {category: "women", name: "Urban Ease", price: "৳ 1,900", desc: "A modern casual sneaker made to fit into everyday wardrobes.", img: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=900&q=85", tag: "New", sizes: ["36", "37", "38", "39", "40"], colors: ["Red", "White", "Black"]},
-            {category: "women", name: "Classic Move", price: "৳ 1,800", desc: "A minimal sneaker concept for relaxed everyday styling.", img: "https://images.unsplash.com/photo-1525966222134-fcfa99b8ae77?w=900&q=85", tag: "Everyday", sizes: ["36", "37", "38", "39", "40"], colors: ["White", "Grey", "Black"]},
-            {category: "children", name: "Mini Runner", price: "৳ 1,250", desc: "A fun everyday sneaker style for active kids.", img: "https://images.unsplash.com/photo-1514989940723-e8e51635b782?w=900&q=85", tag: "Featured", sizes: ["28", "29", "30", "31", "32"], colors: ["Blue", "Red", "White"]},
-            {category: "children", name: "Play Step", price: "৳ 1,100", desc: "An easy-to-wear casual pair for everyday play.", img: "https://images.unsplash.com/photo-1551107696-a4b0c5a0d9a2?w=900&q=85", tag: "Everyday", sizes: ["28", "29", "30", "31", "32"], colors: ["Black", "Blue", "White"]},
-            {category: "children", name: "Tiny Street", price: "৳ 1,350", desc: "A sporty kids' style with a modern streetwear look.", img: "https://images.unsplash.com/photo-1521093470119-a3acdc43374a?w=900&q=85", tag: "Popular", sizes: ["29", "30", "31", "32", "33"], colors: ["White", "Orange", "Black"]},
-            {category: "children", name: "Happy Move", price: "৳ 1,050", desc: "A casual everyday style for little feet.", img: "https://images.unsplash.com/photo-1514989940723-e8e51635b782?w=900&q=85", tag: "New", sizes: ["27", "28", "29", "30", "31"], colors: ["Pink", "Blue", "White"]},
-            {category: "children", name: "Junior Flex", price: "৳ 1,300", desc: "A playful casual sneaker concept for active days.", img: "https://images.unsplash.com/photo-1550259979-ed79b48d2a9a?w=900&q=85", tag: "New", sizes: ["29", "30", "31", "32", "33"], colors: ["Black", "Red", "Blue"]},
-            {category: "children", name: "Little Classic", price: "৳ 1,150", desc: "A clean and easy everyday shoe for kids.", img: "https://images.unsplash.com/photo-1507464098880-e367bc5d2c08?w=900&q=85", tag: "Everyday", sizes: ["28", "29", "30", "31", "32"], colors: ["White", "Grey", "Navy"]}
-        ];
-        const WHATSAPP_NUMBER = "8801799208582"; let selectedProduct = null, selectedColor = "", selectedSize = "", liveLocationUrl = ""; let cart = JSON.parse(localStorage.getItem("zutshoeCart") || "[]");
-        const productModal = document.getElementById("productModal"), orderModal = document.getElementById("orderModal"), cartModal = document.getElementById("cartModal"), toast = document.getElementById("toast");
-        function showToast(message) {toast.textContent = message; toast.classList.add("show"); clearTimeout(window.toastTimer); window.toastTimer = setTimeout(() => toast.classList.remove("show"), 2800)}
-        function openModal(modal) {modal.classList.add("show"); document.body.classList.add("modal-open")}
-        function closeModal(modal) {modal.classList.remove("show"); if (!document.querySelector(".modal.show")) document.body.classList.remove("modal-open")}
-        function renderCategory(category, gridId) {const grid = document.getElementById(gridId); products.filter(p => p.category === category).forEach((p, index) => {const el = document.createElement("article"); el.className = "product" + (index >= 4 ? " hidden-product" : ""); el.innerHTML = `<div class="product-photo"><img src="${p.img}" alt="${p.name} footwear product" loading="lazy"><span class="tag">${p.tag}</span></div><div class="product-info"><h4>${p.name}</h4><div class="price">${p.price}</div><small>Sizes & colors available</small><button class="outline" data-index="${products.indexOf(p)}">View details</button></div>`; grid.appendChild(el)})}
-        renderCategory("men", "menGrid"); renderCategory("women", "womenGrid"); renderCategory("children", "childrenGrid");
-        document.querySelectorAll(".see-more").forEach(button => button.addEventListener("click", () => {document.getElementById(button.dataset.grid).querySelectorAll(".hidden-product").forEach(p => p.classList.remove("hidden-product")); button.classList.add("is-expanded")}));
-        document.querySelectorAll(".product-grid").forEach(grid => grid.addEventListener("click", event => {const button = event.target.closest("button[data-index]"); if (!button) return; selectedProduct = products[Number(button.dataset.index)]; selectedColor = selectedProduct.colors[0]; selectedSize = selectedProduct.sizes[0]; document.getElementById("modalImg").src = selectedProduct.img; document.getElementById("modalImg").alt = selectedProduct.name; document.getElementById("modalName").textContent = selectedProduct.name; document.getElementById("modalPrice").textContent = selectedProduct.price; document.getElementById("modalDesc").textContent = selectedProduct.desc; document.getElementById("modalCategory").textContent = selectedProduct.category === "men" ? "Men's · Product details" : selectedProduct.category === "women" ? "Women's · Product details" : "Kid's · Product details"; document.getElementById("modalSizes").innerHTML = selectedProduct.sizes.map((size, index) => `<button type="button" class="size-option ${index === 0 ? "active" : ""}" data-size="${size}">${size}</button>`).join(""); document.getElementById("modalColors").innerHTML = selectedProduct.colors.map((color, index) => `<button type="button" class="color-option ${index === 0 ? "active" : ""}" data-color="${color}">${color}</button>`).join(""); document.getElementById("modalQty").value = 1; openModal(productModal)}));
-        document.getElementById("modalColors").addEventListener("click", event => {const button = event.target.closest(".color-option"); if (!button) return; selectedColor = button.dataset.color; document.querySelectorAll("#modalColors .color-option").forEach(b => b.classList.remove("active")); button.classList.add("active")});
-        document.getElementById("modalSizes").addEventListener("click", event => {const button = event.target.closest(".size-option"); if (!button) return; selectedSize = button.dataset.size; document.querySelectorAll("#modalSizes .size-option").forEach(b => b.classList.remove("active")); button.classList.add("active")});
-        function saveCart() {localStorage.setItem("zutshoeCart", JSON.stringify(cart)); renderCart()}
-        function renderCart() {document.getElementById("cartCount").textContent = cart.reduce((n, i) => n + i.qty, 0); const box = document.getElementById("cartItems"); box.innerHTML = cart.length ? cart.map((i, n) => `<div class="cart-item"><img src="${i.img}" alt="${i.name}"><div><strong>${i.name}</strong><small>${i.price} · ${i.color} · Size ${i.size} · Qty ${i.qty}</small></div><button class="cart-remove" data-remove="${n}">Remove</button></div>`).join("") : '<p style="font-size:12px;color:#777;margin:5px 0 10px">Your cart is empty.</p>'; document.getElementById("cartTotal").textContent = cart.reduce((n, i) => n + i.qty, 0) + " item(s)"}
-        document.getElementById("cartItems").addEventListener("click", e => {const b = e.target.closest("[data-remove]"); if (!b) return; cart.splice(Number(b.dataset.remove), 1); saveCart()});
-        document.getElementById("modalAddCart").addEventListener("click", () => {if (!selectedProduct) return; const qty = Math.max(1, Math.min(20, Number(document.getElementById("modalQty").value) || 1)); const key = `${selectedProduct.name}|${selectedSize}|${selectedColor}`; const existing = cart.find(i => i.key === key); if (existing) existing.qty = Math.min(20, existing.qty + qty); else cart.push({key, name: selectedProduct.name, price: selectedProduct.price, img: selectedProduct.img, size: selectedSize, color: selectedColor, qty}); saveCart(); closeModal(productModal); showToast(`${selectedProduct.name} added to cart. You can keep shopping.`)});
+    const products = [
+        {category: "men", name: "Street Runner", price: "৳ 790", desc: "A versatile sneaker for everyday outfits and casual street style. Confirm current stock before ordering.", img: "A01.png", tag: "A01", sizes: ["39", "40", "41", "42", "43", "44"], colors: ["Black", "White", "Red"]},
+        {category: "men", name: "Classic Low", price: "৳ 699", desc: "A clean low-profile style made for everyday casual wear.", img: "A02.png", tag: "Everyday", sizes: ["39", "40", "41", "42", "43", "44"], colors: ["Black", "Brown"]},
+        {category: "men", name: "Urban Move", price: "৳ 450", desc: "A sporty everyday sneaker concept for busy days and active outfits.", img: "A09.png", tag: "Popular", sizes: ["40", "41", "42", "43", "44"], colors: ["Black", "Grey", "White"]},
+        {category: "men", name: "Daily Flex", price: "৳ 650", desc: "An easy-to-style casual pair for daily use.", img: "A15.png", tag: "New", sizes: ["40", "41", "42", "43"], colors: ["Light"]},
+        {category: "men", name: "Runner Pro", price: "৳ 2,350", desc: "A modern sporty silhouette for comfortable everyday movement.", img: "A08.png", tag: "New", sizes: ["40", "41", "42", "43", "44"], colors: ["Orange", "Black", "White"]},
+        {category: "men", name: "Street Core", price: "৳ 1,950", desc: "A bold casual sneaker designed for street-inspired looks.", img: "A14.png", tag: "Popular", sizes: ["39", "40", "41", "42", "43"], colors: ["Black", "White", "Grey"]},
+        {category: "men", name: "Street Core", price: "৳ 1,950", desc: "A bold casual sneaker designed for street-inspired looks.", img: "A11.png", tag: "Popular", sizes: ["39", "40", "41", "42", "43"], colors: ["Black", "White", "Grey"]},
+        {category: "men", name: "Street Core", price: "৳ 1,950", desc: "A bold casual sneaker designed for street-inspired looks.", img: "A06.png", tag: "Popular", sizes: ["39", "40", "41", "42", "43"], colors: ["Black", "White", "Grey"]},
+        {category: "women", name: "City Step", price: "৳ 1,750", desc: "A clean everyday style that works with casual and modern outfits.", img: "https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=900&q=85", tag: "Featured", sizes: ["36", "37", "38", "39", "40"], colors: ["White", "Black", "Beige"]},
+        {category: "women", name: "Soft Walk", price: "৳ 1,550", desc: "A simple and comfortable pair for everyday plans.", img: "https://images.unsplash.com/photo-1495555961986-6d4c1ecb7be3?w=900&q=85", tag: "Everyday", sizes: ["36", "37", "38", "39", "40"], colors: ["White", "Pink", "Black"]},
+        {category: "women", name: "Street Muse", price: "৳ 2,050", desc: "A fashion-forward sneaker style with an easy everyday feel.", img: "https://images.unsplash.com/photo-1460353581641-37baddab0fa2?w=900&q=85", tag: "Popular", sizes: ["36", "37", "38", "39", "40"], colors: ["White", "Navy", "Black"]},
+        {category: "women", name: "Daily Glow", price: "৳ 1,650", desc: "A versatile pair for casual outfits and daily movement.", img: "https://images.unsplash.com/photo-1560769629-975ec94e6a86?w=900&q=85", tag: "New", sizes: ["36", "37", "38", "39"], colors: ["White", "Orange", "Black"]},
+        {category: "women", name: "Urban Ease", price: "৳ 1,900", desc: "A modern casual sneaker made to fit into everyday wardrobes.", img: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=900&q=85", tag: "New", sizes: ["36", "37", "38", "39", "40"], colors: ["Red", "White", "Black"]},
+        {category: "women", name: "Classic Move", price: "৳ 1,800", desc: "A minimal sneaker concept for relaxed everyday styling.", img: "https://images.unsplash.com/photo-1525966222134-fcfa99b8ae77?w=900&q=85", tag: "Everyday", sizes: ["36", "37", "38", "39", "40"], colors: ["White", "Grey", "Black"]},
+        {category: "children", name: "Mini Runner", price: "৳ 1,250", desc: "A fun everyday sneaker style for active kids.", img: "https://images.unsplash.com/photo-1514989940723-e8e51635b782?w=900&q=85", tag: "Featured", sizes: ["28", "29", "30", "31", "32"], colors: ["Blue", "Red", "White"]},
+        {category: "children", name: "Play Step", price: "৳ 1,100", desc: "An easy-to-wear casual pair for everyday play.", img: "https://images.unsplash.com/photo-1551107696-a4b0c5a0d9a2?w=900&q=85", tag: "Everyday", sizes: ["28", "29", "30", "31", "32"], colors: ["Black", "Blue", "White"]},
+        {category: "children", name: "Tiny Street", price: "৳ 1,350", desc: "A sporty kids' style with a modern streetwear look.", img: "https://images.unsplash.com/photo-1521093470119-a3acdc43374a?w=900&q=85", tag: "Popular", sizes: ["29", "30", "31", "32", "33"], colors: ["White", "Orange", "Black"]},
+        {category: "children", name: "Happy Move", price: "৳ 1,050", desc: "A casual everyday style for little feet.", img: "https://images.unsplash.com/photo-1514989940723-e8e51635b782?w=900&q=85", tag: "New", sizes: ["27", "28", "29", "30", "31"], colors: ["Pink", "Blue", "White"]},
+        {category: "children", name: "Junior Flex", price: "৳ 1,300", desc: "A playful casual sneaker concept for active days.", img: "https://images.unsplash.com/photo-1550259979-ed79b48d2a9a?w=900&q=85", tag: "New", sizes: ["29", "30", "31", "32", "33"], colors: ["Black", "Red", "Blue"]},
+        {category: "children", name: "Little Classic", price: "৳ 1,150", desc: "A clean and easy everyday shoe for kids.", img: "https://images.unsplash.com/photo-1507464098880-e367bc5d2c08?w=900&q=85", tag: "Everyday", sizes: ["28", "29", "30", "31", "32"], colors: ["White", "Grey", "Navy"]}
+    ];
 
-        document.getElementById("modalOrder").addEventListener("click", () => {if (!selectedProduct) return; const size = selectedSize, qty = Math.max(1, Math.min(20, Number(document.getElementById("modalQty").value) || 1)); document.getElementById("modalQty").value = qty; document.getElementById("orderSummaryImg").src = selectedProduct.img; document.getElementById("orderSummaryImg").alt = selectedProduct.name; document.getElementById("orderSummaryName").textContent = selectedProduct.name; document.getElementById("orderSummaryDetails").textContent = `${selectedProduct.price} · Color: ${selectedColor} · Size: ${size} · Quantity: ${qty}`; document.getElementById("orderForm").dataset.size = size; document.getElementById("orderForm").dataset.quantity = qty; liveLocationUrl = ""; document.getElementById("locationStatus").textContent = "Click below to share your current location."; document.getElementById("locationLink").classList.remove("show"); closeModal(productModal); openModal(orderModal)});
-        document.getElementById("locationBtn").addEventListener("click", () => {const status = document.getElementById("locationStatus"), link = document.getElementById("locationLink"); if (!navigator.geolocation) {status.textContent = "Live location is not supported by this browser."; return } status.textContent = "Getting your location..."; navigator.geolocation.getCurrentPosition(position => {liveLocationUrl = `https://www.google.com/maps?q=${position.coords.latitude},${position.coords.longitude}`; link.href = liveLocationUrl; link.textContent = "Open location in Google Maps ↗"; link.classList.add("show"); status.textContent = "Location captured successfully."}, error => {liveLocationUrl = ""; link.classList.remove("show"); status.textContent = error.code === 1 ? "Location permission denied. Please allow location access and try again." : "Could not get location. Please try again."}, {enableHighAccuracy: true, timeout: 12000, maximumAge: 0})});
-        document.getElementById("orderForm").addEventListener("submit", event => {event.preventDefault(); if (!selectedProduct) return; const name = document.getElementById("customerName").value.trim(), phone = document.getElementById("customerPhone").value.trim(), address = document.getElementById("customerAddress").value.trim(), form = event.target; if (!liveLocationUrl) {showToast("Please get your live location before placing the order."); return } const productDetails = cart.length ? cart.map((i, n) => `${n + 1}. ${i.name}\nImage URL: ${i.img}\nPrice: ${i.price}\nColor: ${i.color}\nSize: ${i.size}\nQuantity: ${i.qty}`).join("\n\n") : `Product: ${selectedProduct.name}\nImage: ${selectedProduct.img}\nPrice: ${selectedProduct.price}\nColor: ${selectedColor}\nSize: ${form.dataset.size}\nQuantity: ${form.dataset.quantity}`; const message = `ZUTSHOE ORDER\n\nPRODUCT DETAILS\n${productDetails}\n\nCUSTOMER DETAILS\nName: ${name}\nPhone: ${phone}\nAddress: ${address}\nLive Location: ${liveLocationUrl}\n\nPlease confirm my order.`; window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`, "_blank", "noopener"); cart = []; saveCart(); closeModal(orderModal)});
-        document.getElementById("cartBtn").onclick = () => {renderCart(); openModal(cartModal)}; document.getElementById("closeCartModal").onclick = () => closeModal(cartModal); document.getElementById("cartContinue").onclick = () => {closeModal(cartModal); document.getElementById("shop").scrollIntoView({behavior: "smooth"})}; document.getElementById("cartCheckout").onclick = () => {if (!cart.length) {showToast("Your cart is empty."); return } closeModal(cartModal); showToast("Please add your customer details by ordering an item. For multiple items, checkout is prepared below."); openModal(orderModal); selectedProduct = {name: "Multiple items", price: "See cart", img: cart[0].img, desc: "Multiple cart items"}; document.getElementById("orderSummaryImg").src = cart[0].img; document.getElementById("orderSummaryName").textContent = "Multiple items"; document.getElementById("orderSummaryDetails").textContent = cart.map(i => `${i.name} · ${i.color} · Size ${i.size} · Qty ${i.qty}`).join(" | "); document.getElementById("orderForm").dataset.size = "Multiple"; document.getElementById("orderForm").dataset.quantity = "Multiple"}; document.getElementById("closeProductModal").onclick = () => closeModal(productModal); document.getElementById("closeOrderModal").onclick = () => closeModal(orderModal);[productModal, orderModal, cartModal].forEach(modal => modal.addEventListener("click", event => {if (event.target === modal) closeModal(modal)})); document.addEventListener("keydown", event => {if (event.key === "Escape") {closeModal(productModal); closeModal(orderModal)} }); document.getElementById("menuBtn").addEventListener("click", () => document.getElementById("navLinks").classList.toggle("open")); document.querySelectorAll("#navLinks a").forEach(link => link.addEventListener("click", () => document.getElementById("navLinks").classList.remove("open"))); document.getElementById("year").textContent = new Date().getFullYear(); renderCart();
-    </script>
+    const WHATSAPP_NUMBER = "8801799208582"; 
+    let selectedProduct = null, selectedColor = "", selectedSize = ""; 
+    let cart = JSON.parse(localStorage.getItem("zutshoeCart") || "[]");
+    
+    const productModal = document.getElementById("productModal"), 
+          orderModal = document.getElementById("orderModal"), 
+          cartModal = document.getElementById("cartModal"), 
+          toast = document.getElementById("toast");
+
+    function showToast(message) {
+        toast.textContent = message; 
+        toast.classList.add("show"); 
+        clearTimeout(window.toastTimer); 
+        window.toastTimer = setTimeout(() => toast.classList.remove("show"), 2800);
+    }
+
+    function openModal(modal) {
+        modal.classList.add("show"); 
+        document.body.classList.add("modal-open");
+    }
+
+    function closeModal(modal) {
+        modal.classList.remove("show"); 
+        if (!document.querySelector(".modal.show")) document.body.classList.remove("modal-open");
+    }
+
+    function renderCategory(category, gridId) {
+        const grid = document.getElementById(gridId); 
+        products.filter(p => p.category === category).forEach((p, index) => {
+            const el = document.createElement("article"); 
+            el.className = "product" + (index >= 4 ? " hidden-product" : ""); 
+            el.innerHTML = `<div class="product-photo"><img src="${p.img}" alt="${p.name} footwear product" loading="lazy"><span class="tag">${p.tag}</span></div><div class="product-info"><h4>${p.name}</h4><div class="price">${p.price}</div><small>Sizes & colors available</small><button class="outline" data-index="${products.indexOf(p)}">View details</button></div>`; 
+            grid.appendChild(el);
+        });
+    }
+
+    renderCategory("men", "menGrid"); 
+    renderCategory("women", "womenGrid"); 
+    renderCategory("children", "childrenGrid");
+
+    document.querySelectorAll(".see-more").forEach(button => button.addEventListener("click", () => {
+        document.getElementById(button.dataset.grid).querySelectorAll(".hidden-product").forEach(p => p.classList.remove("hidden-product")); 
+        button.classList.add("is-expanded");
+    }));
+
+    document.querySelectorAll(".product-grid").forEach(grid => grid.addEventListener("click", event => {
+        const button = event.target.closest("button[data-index]"); 
+        if (!button) return; 
+        selectedProduct = products[Number(button.dataset.index)]; 
+        selectedColor = selectedProduct.colors[0]; 
+        selectedSize = selectedProduct.sizes[0]; 
+        document.getElementById("modalImg").src = selectedProduct.img; 
+        document.getElementById("modalImg").alt = selectedProduct.name; 
+        document.getElementById("modalName").textContent = selectedProduct.name; 
+        document.getElementById("modalPrice").textContent = selectedProduct.price; 
+        document.getElementById("modalDesc").textContent = selectedProduct.desc; 
+        document.getElementById("modalCategory").textContent = selectedProduct.category === "men" ? "Men's · Product details" : selectedProduct.category === "women" ? "Women's · Product details" : "Kid's · Product details"; 
+        document.getElementById("modalSizes").innerHTML = selectedProduct.sizes.map((size, index) => `<button type="button" class="size-option ${index === 0 ? "active" : ""}" data-size="${size}">${size}</button>`).join(""); 
+        document.getElementById("modalColors").innerHTML = selectedProduct.colors.map((color, index) => `<button type="button" class="color-option ${index === 0 ? "active" : ""}" data-color="${color}">${color}</button>`).join(""); 
+        document.getElementById("modalQty").value = 1; 
+        openModal(productModal);
+    }));
+
+    document.getElementById("modalColors").addEventListener("click", event => {
+        const button = event.target.closest(".color-option"); 
+        if (!button) return; 
+        selectedColor = button.dataset.color; 
+        document.querySelectorAll("#modalColors .color-option").forEach(b => b.classList.remove("active")); 
+        button.classList.add("active");
+    });
+
+    document.getElementById("modalSizes").addEventListener("click", event => {
+        const button = event.target.closest(".size-option"); 
+        if (!button) return; 
+        selectedSize = button.dataset.size; 
+        document.querySelectorAll("#modalSizes .size-option").forEach(b => b.classList.remove("active")); 
+        button.classList.add("active");
+    });
+
+    function saveCart() {
+        localStorage.setItem("zutshoeCart", JSON.stringify(cart)); 
+        renderCart();
+    }
+
+    function renderCart() {
+        document.getElementById("cartCount").textContent = cart.reduce((n, i) => n + i.qty, 0); 
+        const box = document.getElementById("cartItems"); 
+        box.innerHTML = cart.length ? cart.map((i, n) => `<div class="cart-item"><img src="${i.img}" alt="${i.name}"><div><strong>${i.name}</strong><small>${i.price} · ${i.color} · Size ${i.size} · Qty ${i.qty}</small></div><button class="cart-remove" data-remove="${n}">Remove</button></div>`).join("") : '<p style="font-size:12px;color:#777;margin:5px 0 10px">Your cart is empty.</p>'; 
+        document.getElementById("cartTotal").textContent = cart.reduce((n, i) => n + i.qty, 0) + " item(s)";
+    }
+
+    document.getElementById("cartItems").addEventListener("click", e => {
+        const b = e.target.closest("[data-remove]"); 
+        if (!b) return; 
+        cart.splice(Number(b.dataset.remove), 1); 
+        saveCart();
+    });
+
+    document.getElementById("modalAddCart").addEventListener("click", () => {
+        if (!selectedProduct) return; 
+        const qty = Math.max(1, Math.min(20, Number(document.getElementById("modalQty").value) || 1)); 
+        const key = `${selectedProduct.name}|${selectedSize}|${selectedColor}`; 
+        const existing = cart.find(i => i.key === key); 
+        if (existing) existing.qty = Math.min(20, existing.qty + qty); 
+        else cart.push({key, name: selectedProduct.name, price: selectedProduct.price, img: selectedProduct.img, size: selectedSize, color: selectedColor, qty}); 
+        saveCart(); 
+        closeModal(productModal); 
+        showToast(`${selectedProduct.name} added to cart. You can keep shopping.`);
+    });
+
+    document.getElementById("modalOrder").addEventListener("click", () => {
+        if (!selectedProduct) return; 
+        const size = selectedSize, qty = Math.max(1, Math.min(20, Number(document.getElementById("modalQty").value) || 1)); 
+        document.getElementById("modalQty").value = qty; 
+        document.getElementById("orderSummaryImg").src = selectedProduct.img; 
+        document.getElementById("orderSummaryImg").alt = selectedProduct.name; 
+        document.getElementById("orderSummaryName").textContent = selectedProduct.name; 
+        document.getElementById("orderSummaryDetails").textContent = `${selectedProduct.price} · Color: ${selectedColor} · Size: ${size} · Quantity: ${qty}`; 
+        document.getElementById("orderForm").dataset.size = size; 
+        document.getElementById("orderForm").dataset.quantity = qty; 
+        closeModal(productModal); 
+        openModal(orderModal);
+    });
+
+    // Form Submit with strict phone number verification to ensure WhatsApp messaging works reliably
+    document.getElementById("orderForm").addEventListener("submit", event => {
+        event.preventDefault(); 
+        if (!selectedProduct) return; 
+        
+        const name = document.getElementById("customerName").value.trim();
+        const phone = document.getElementById("customerPhone").value.trim();
+        const address = document.getElementById("customerAddress").value.trim();
+        const form = event.target; 
+
+        // Validate phone number format (checking for minimum length and proper digit structure)
+        const phoneRegex = /^[0-9+\-\s()]{10,15}$/;
+        if (!phoneRegex.test(phone)) {
+            showToast("Please enter a valid phone number so we can confirm your order.");
+            document.getElementById("customerPhone").focus();
+            return;
+        }
+
+        const productDetails = cart.length ? cart.map((i, n) => `${n + 1}. ${i.name}\nImage: ${i.img}\nPrice: ${i.price}\nColor: ${i.color}\nSize: ${i.size}\nQuantity: ${i.qty}`).join("\n\n") : `Product: ${selectedProduct.name}\nImage: ${selectedProduct.img}\nPrice: ${selectedProduct.price}\nColor: ${selectedColor}\nSize: ${form.dataset.size}\nQuantity: ${form.dataset.quantity}`; 
+        
+        const message = `ZUTSHOE ORDER\n\nPRODUCT DETAILS\n${productDetails}\n\nCUSTOMER DETAILS\nName: ${name}\nPhone: ${phone}\nAddress: ${address}\n\nPlease confirm my order.`; 
+        
+        window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`, "_blank", "noopener"); 
+        cart = []; 
+        saveCart(); 
+        closeModal(orderModal);
+    });
+
+    document.getElementById("cartBtn").onclick = () => {renderCart(); openModal(cartModal)}; 
+    document.getElementById("closeCartModal").onclick = () => closeModal(cartModal); 
+    document.getElementById("cartContinue").onclick = () => {closeModal(cartModal); document.getElementById("shop").scrollIntoView({behavior: "smooth"})}; 
+    
+    document.getElementById("cartCheckout").onclick = () => {
+        if (!cart.length) {showToast("Your cart is empty."); return} 
+        closeModal(cartModal); 
+        showToast("Please add your customer details below to complete checkout."); 
+        openModal(orderModal); 
+        selectedProduct = {name: "Multiple items", price: "See cart", img: cart[0].img, desc: "Multiple cart items"}; 
+        document.getElementById("orderSummaryImg").src = cart[0].img; 
+        document.getElementById("orderSummaryName").textContent = "Multiple items"; 
+        document.getElementById("orderSummaryDetails").textContent = cart.map(i => `${i.name} · ${i.color} · Size ${i.size} · Qty ${i.qty}`).join(" | "); 
+        document.getElementById("orderForm").dataset.size = "Multiple"; 
+        document.getElementById("orderForm").dataset.quantity = "Multiple";
+    }; 
+
+    document.getElementById("closeProductModal").onclick = () => closeModal(productModal); 
+    document.getElementById("closeOrderModal").onclick = () => closeModal(orderModal);
+
+    [productModal, orderModal, cartModal].forEach(modal => modal.addEventListener("click", event => {
+        if (event.target === modal) closeModal(modal);
+    })); 
+
+    document.addEventListener("keydown", event => {
+        if (event.key === "Escape") {closeModal(productModal); closeModal(orderModal);} 
+    }); 
+
+    document.getElementById("menuBtn").addEventListener("click", () => document.getElementById("navLinks").classList.toggle("open")); 
+    document.querySelectorAll("#navLinks a").forEach(link => link.addEventListener("click", () => document.getElementById("navLinks").classList.remove("open"))); 
+    document.getElementById("year").textContent = new Date().getFullYear(); 
+    renderCart();
+</script>
 </body>
 
 </html>
