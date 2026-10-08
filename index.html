@@ -1364,7 +1364,7 @@
                     </div>
                 </div><button class="cta" id="modalAddCart">Add to Cart</button><button class="cta" id="modalOrder">Buy
                     Now ↗</button>
-                <button class="outline" id="modalShare" style="margin-top: 10px;">Share Product ↗</button>
+                <button class="outline" id="modalShareLink" style="margin-top: 10px;">Copy Product Link ↗</button>
             </div>
         </div>
     </div>
@@ -1406,7 +1406,7 @@
     <div class="toast" id="toast"></div>
 
     <script>
-    const products = [
+   const products = [
         {category: "men", name: "Street Runner", price: "৳ 790", desc: "A versatile sneaker for everyday outfits and casual street style. Confirm current stock before ordering.", img: "A01.png", tag: "A01", sizes: ["39", "40", "41", "42", "43", "44"], colors: ["Black", "White", "Red"]},
         {category: "men", name: "Classic Low", price: "৳ 699", desc: "A clean low-profile style made for everyday casual wear.", img: "A02.png", tag: "Everyday", sizes: ["39", "40", "41", "42", "43", "44"], colors: ["Black", "Brown"]},
         {category: "men", name: "Urban Move", price: "৳ 450", desc: "A sporty everyday sneaker concept for busy days and active outfits.", img: "A09.png", tag: "Popular", sizes: ["40", "41", "42", "43", "44"], colors: ["Black", "Grey", "White"]},
@@ -1429,25 +1429,6 @@
         {category: "children", name: "Little Classic", price: "৳ 1,150", desc: "A clean and easy everyday shoe for kids.", img: "https://images.unsplash.com/photo-1507464098880-e367bc5d2c08?w=900&q=85", tag: "Everyday", sizes: ["28", "29", "30", "31", "32"], colors: ["White", "Grey", "Navy"]}
     ];
 
-    document.getElementById("modalShare").addEventListener("click", () => {
-    if (!selectedProduct) return;
-    
-    const shareData = {
-        title: selectedProduct.name + " | Zutshoe",
-        text: `Check out ${selectedProduct.name} for ${selectedProduct.price} at Zutshoe!`,
-        url: window.location.href
-    };
-
-    if (navigator.share) {
-        // Opens phone's native share menu (WhatsApp, Facebook, Messenger, etc.)
-        navigator.share(shareData).catch(() => {});
-    } else {
-        // Fallback for desktop browsers: copies the page link
-        navigator.clipboard.writeText(window.location.href);
-        showToast("Product link copied to clipboard!");
-    }
-});
-        
     const WHATSAPP_NUMBER = "8801799208582"; 
     let selectedProduct = null, selectedColor = "", selectedSize = ""; 
     let cart = JSON.parse(localStorage.getItem("zutshoeCart") || "[]");
@@ -1527,6 +1508,15 @@
         button.classList.add("active");
     });
 
+    // Copy Direct Product Link Handler
+    document.getElementById("modalShareLink").addEventListener("click", () => {
+        if (!selectedProduct) return;
+        const productUrl = `${window.location.origin + window.location.pathname}#${selectedProduct.tag}`;
+        navigator.clipboard.writeText(productUrl).then(() => {
+            showToast("Product link copied! You can share it anywhere.");
+        });
+    });
+
     function saveCart() {
         localStorage.setItem("zutshoeCart", JSON.stringify(cart)); 
         renderCart();
@@ -1572,7 +1562,7 @@
         openModal(orderModal);
     });
 
-    // Form Submit with strict phone number verification to ensure WhatsApp messaging works reliably
+    // Form Submit with phone number verification
     document.getElementById("orderForm").addEventListener("submit", event => {
         event.preventDefault(); 
         if (!selectedProduct) return; 
@@ -1582,7 +1572,6 @@
         const address = document.getElementById("customerAddress").value.trim();
         const form = event.target; 
 
-        // Validate phone number format (checking for minimum length and proper digit structure)
         const phoneRegex = /^[0-9+\-\s()]{10,15}$/;
         if (!phoneRegex.test(phone)) {
             showToast("Please enter a valid phone number so we can confirm your order.");
@@ -1632,6 +1621,41 @@
     document.querySelectorAll("#navLinks a").forEach(link => link.addEventListener("click", () => document.getElementById("navLinks").classList.remove("open"))); 
     document.getElementById("year").textContent = new Date().getFullYear(); 
     renderCart();
+
+    // Auto-scroll and open product modal if the link has a product tag hash (e.g., #A01)
+    window.addEventListener("DOMContentLoaded", () => {
+        const hash = window.location.hash.replace("#", "");
+        if (hash) {
+            const foundProduct = products.find(p => p.tag.toLowerCase() === hash.toLowerCase());
+            if (foundProduct) {
+                // Scroll down to shop section smoothly
+                document.getElementById("shop").scrollIntoView({behavior: "smooth"});
+                
+                // If product is hidden by the 4-per-row limit, automatically expand its category grid
+                const categoryGridId = foundProduct.category + "Grid";
+                document.getElementById(categoryGridId).querySelectorAll(".hidden-product").forEach(p => p.classList.remove("hidden-product"));
+                const seeMoreBtn = document.querySelector(`.see-more[data-grid="${categoryGridId}"]`);
+                if (seeMoreBtn) seeMoreBtn.classList.add("is-expanded");
+
+                // Open the modal after a short delay
+                setTimeout(() => {
+                    selectedProduct = foundProduct;
+                    selectedColor = selectedProduct.colors[0];
+                    selectedSize = selectedProduct.sizes[0];
+                    document.getElementById("modalImg").src = selectedProduct.img;
+                    document.getElementById("modalImg").alt = selectedProduct.name;
+                    document.getElementById("modalName").textContent = selectedProduct.name;
+                    document.getElementById("modalPrice").textContent = selectedProduct.price;
+                    document.getElementById("modalDesc").textContent = selectedProduct.desc;
+                    document.getElementById("modalCategory").textContent = selectedProduct.category === "men" ? "Men's · Product details" : foundProduct.category === "women" ? "Women's · Product details" : "Kid's · Product details";
+                    document.getElementById("modalSizes").innerHTML = selectedProduct.sizes.map((size, index) => `<button type="button" class="size-option ${index === 0 ? "active" : ""}" data-size="${size}">${size}</button>`).join("");
+                    document.getElementById("modalColors").innerHTML = selectedProduct.colors.map((color, index) => `<button type="button" class="color-option ${index === 0 ? "active" : ""}" data-color="${color}">${color}</button>`).join("");
+                    document.getElementById("modalQty").value = 1;
+                    openModal(productModal);
+                }, 400);
+            }
+        }
+    });
 </script>
 </body>
 
