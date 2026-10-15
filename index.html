@@ -613,15 +613,51 @@
             position: relative
         }
 
-        .modal-image {
+        .modal-image-area {
             background: #eee;
-            min-height: 390px
+            min-height: 390px;
+            display: flex;
+            flex-direction: column;
         }
 
-        .modal-image img {
+        .modal-main-img {
+            flex-grow: 1;
+            aspect-ratio: 1;
+            background: #eee;
+        }
+
+        .modal-main-img img {
             width: 100%;
             height: 100%;
             object-fit: cover
+        }
+
+        .modal-thumbnails {
+            display: flex;
+            gap: 8px;
+            padding: 10px;
+            background: #f9f9f9;
+            overflow-x: auto;
+        }
+
+        .thumb-img {
+            width: 50px;
+            height: 50px;
+            border-radius: 4px;
+            border: 2px solid #ddd;
+            overflow: hidden;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .thumb-img.active {
+            border-color: var(--accent);
+        }
+
+        .thumb-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
 
         .close {
@@ -791,7 +827,7 @@
 
         .modal-content .cta {
             width: 100%;
-            margin-top: 20px
+            margin-top: 15px
         }
 
         .order-card {
@@ -859,12 +895,6 @@
             color: #777;
             margin-top: 5px;
             line-height: 1.5
-        }
-
-        .order-form {
-            padding: 22px 28px 28px;
-            display: grid;
-            gap: 13px
         }
 
         .form-group label {
@@ -1136,9 +1166,8 @@
                 max-width: 430px
             }
 
-            .modal-image {
-                height: 230px;
-                min-height: 0
+            .modal-image-area {
+                min-height: 230px;
             }
 
             .modal-content {
@@ -1359,7 +1388,10 @@
 
     <div class="modal" id="productModal" role="dialog" aria-modal="true" aria-label="Product details">
         <div class="modal-card"><button class="close" id="closeProductModal" aria-label="Close">×</button>
-            <div class="modal-image"><img id="modalImg" src="" alt=""></div>
+            <div class="modal-image-area">
+                <div class="modal-main-img"><img id="modalMainImg" src="" alt=""></div>
+                <div class="modal-thumbnails" id="modalThumbnails"></div>
+            </div>
             <div class="modal-content"><span class="eyebrow" id="modalCategory">Product details</span>
                 <h2 id="modalName"></h2>
                 <div class="price" id="modalPrice"></div>
@@ -1371,9 +1403,11 @@
                     <div><span class="option-label">Color availability</span>
                         <div class="color-options" id="modalColors"></div>
                     </div>
-                    <div><span class="option-label">Quantity</span>
-                        <div class="qty-row"><input class="qty-control" id="modalQty" type="number" min="1" max="20"
-                                value="1"></div>
+                    <div><span class="option-label">Quantity & Total Price</span>
+                        <div class="qty-row">
+                            <input class="qty-control" id="modalQty" type="number" min="1" max="20" value="1">
+                            <span id="modalCalculatedPrice" style="font-size:13px; font-weight:800; color:var(--accent);"></span>
+                        </div>
                     </div>
                 </div><button class="cta" id="modalAddCart">Add to Cart</button><button class="cta" id="modalOrder">Buy
                     Now ↗</button>
@@ -1419,257 +1453,286 @@
     <div class="toast" id="toast"></div>
 
     <script>
-   const products = [
-        {category: "men", name: "Street Runner", price: "৳ 790", desc: "A versatile sneaker for everyday outfits and casual street style. Confirm current stock before ordering.", img: "A01.png", tag: "A01", sizes: ["39", "40", "41", "42", "43", "44"], colors: ["Black"]},
-        {category: "men", name: "Classic Low", price: "৳ 699", desc: "A clean low-profile style made for everyday casual wear.", img: "A02.png", tag: "A02", sizes: ["39", "40", "41", "42", "43", "44"], colors: ["Black", "Brown"]},
-        {category: "men", name: "Urban Move", price: "৳ 450", desc: "A sporty everyday sneaker concept for busy days and active outfits.", img: "A09.png", tag: "A09", sizes: ["40", "41", "42", "43", "44"], colors: ["Black","White"]},
-        {category: "men", name: "Daily Flex", price: "৳ 650", desc: "An easy-to-style casual pair for daily use.", img: "A15.png", tag: "A15", sizes: ["40", "41", "42", "43"], colors: ["Light"]},
-        {category: "men", name: "Runner Pro", price: "৳ 620", desc: "A modern sporty silhouette for comfortable everyday movement.", img: "A08.png", tag: "A08", sizes: ["39", "40", "41", "42"], colors: ["Brown", "Black"]},
-        {category: "men", name: "Street Core", price: "৳ 350", desc: "A bold casual sneaker designed for street-inspired looks.", img: "A14.png", tag: "A14", sizes: ["40", "41", "42", "43"], colors: ["White"]},
-        {category: "men", name: "Street Core", price: "৳ 490", desc: "A bold casual sneaker designed for street-inspired looks.", img: "A06.png", tag: "A06", sizes: ["41", "42", "43", "44", "45", "46"], colors: ["Black", "Yellow"]},
-        {category: "men", name: "Street Core", price: "৳ 350", desc: "A bold casual sneaker designed for street-inspired looks.", img: "A11.png", tag: "A11", sizes: ["28", "29", "30", "31", "32", "33", "34", "35", "36", "37", "38", "39", "40", "41", "42", "43"], colors: ["Black", "White"]},
-        {category: "women", name: "City Step", price: "৳ 480", desc: "A clean everyday style that works with casual and modern outfits.", img: "B04.png", tag: "B04", sizes: ["36", "37", "38", "39", "40", "41"], colors: ["Black", "Golden"]},
-        {category: "women", name: "Street Muse", price: "৳ 490", desc: "A fashion-forward sneaker style with an easy everyday feel.", img: "B02.png", tag: "Popular", sizes: ["39", "40", "41", "42"], colors: ["Black"]},
-        {category: "women", name: "Daily Glow", price: "৳ 1,650", desc: "A versatile pair for casual outfits and daily movement.", img: "https://images.unsplash.com/photo-1560769629-975ec94e6a86?w=900&q=85", tag: "New", sizes: ["36", "37", "38", "39"], colors: ["White", "Orange", "Black"]},
-        {category: "women", name: "Urban Ease", price: "৳ 1,900", desc: "A modern casual sneaker made to fit into everyday wardrobes.", img: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=900&q=85", tag: "New", sizes: ["36", "37", "38", "39", "40"], colors: ["Red", "White", "Black"]},
-        {category: "women", name: "Classic Move", price: "৳ 1,800", desc: "A minimal sneaker concept for relaxed everyday styling.", img: "https://images.unsplash.com/photo-1525966222134-fcfa99b8ae77?w=900&q=85", tag: "Everyday", sizes: ["36", "37", "38", "39", "40"], colors: ["White", "Grey", "Black"]},
-        {category: "children", name: "Mini Runner", price: "৳ 990", desc: "A fun everyday sneaker style for active kids.", img: "C01.png", tag: "C01", sizes: ["28", "29", "30", "31", "32"], colors: ["Black", "White"]},
-        {category: "children", name: "Tiny Street", price: "৳ 250", desc: "A sporty kids' style with a modern streetwear look.", img: "C02.png", tag: "C02", sizes: ["29", "30", "31", "32", "33"], colors: ["Orange", "Yellow"]},
-        {category: "children", name: "Happy Move", price: "৳ 600", desc: "A casual everyday style for little feet.", img: "C13.png", tag: "C13", sizes: ["27", "28", "29", "30", "31"], colors: ["Black"]}, 
-        {category: "children", name: "Happy Move", price: "৳ 390", desc: "A casual everyday style for little feet.", img: "C08.png", tag: "C08", sizes: ["27", "28", "29", "30", "31"], colors: ["Brown", "White"]},
-        {category: "children", name: "Play Step", price: "৳ 790", desc: "An easy-to-wear casual pair for everyday play.", img: "C07.png", tag: "C07", sizes: ["28", "29", "30", "31", "32"], colors: ["Black"]},
-        {category: "children", name: "Little Classic", price: "৳ 750", desc: "A clean and easy everyday shoe for kids.", img: "C04.png", tag: "C04", sizes: ["28", "29", "30", "31", "32"], colors: ["White"]},
-        {category: "children", name: "Junior Flex", price: "৳ 450", desc: "A playful casual sneaker concept for active days.", img: "C11.png", tag: "C11", sizes: ["29", "30", "31", "32", "33"], colors: ["Black", "White"]},
-    ];
+        const products = [
+            {category: "men", name: "Street Runner", priceNum: 790, price: "৳ 790", desc: "A versatile sneaker for everyday outfits and casual street style. Confirm current stock before ordering.", img: "A01.png", tag: "A01", sizes: ["39", "40", "41", "42", "43", "44"], colors: ["Black"]},
+            {category: "men", name: "Classic Low", priceNum: 699, price: "৳ 699", desc: "A clean low-profile style made for everyday casual wear.", img: "A02.png", tag: "A02", sizes: ["39", "40", "41", "42", "43", "44"], colors: ["Black", "Brown"]},
+            {category: "men", name: "Urban Move", priceNum: 450, price: "৳ 450", desc: "A sporty everyday sneaker concept for busy days and active outfits.", img: "A09.png", tag: "A09", sizes: ["40", "41", "42", "43", "44"], colors: ["Black","White"]},
+            {category: "men", name: "Daily Flex", priceNum: 650, price: "৳ 650", desc: "An easy-to-style casual pair for daily use.", img: "A15.png", tag: "A15", sizes: ["40", "41", "42", "43"], colors: ["Light"]},
+            {category: "men", name: "Runner Pro", priceNum: 620, price: "৳ 620", desc: "A modern sporty silhouette for comfortable everyday movement.", img: "A08.png", tag: "A08", sizes: ["39", "40", "41", "42"], colors: ["Brown", "Black"]},
+            {category: "men", name: "Street Core", priceNum: 350, price: "৳ 350", desc: "A bold casual sneaker designed for street-inspired looks.", img: "A14.png", tag: "A14", sizes: ["40", "41", "42", "43"], colors: ["White"]},
+            {category: "men", name: "Street Core", priceNum: 490, price: "৳ 490", desc: "A bold casual sneaker designed for street-inspired looks.", img: "A06.png", tag: "A06", sizes: ["41", "42", "43", "44", "45", "46"], colors: ["Black", "Yellow"]},
+            {category: "men", name: "Street Core", priceNum: 350, price: "৳ 350", desc: "A bold casual sneaker designed for street-inspired looks.", img: "A11.png", tag: "A11", sizes: ["28", "29", "30", "31", "32", "33", "34", "35", "36", "37", "38", "39", "40", "41", "42", "43"], colors: ["Black", "White"]},
+            {category: "women", name: "City Step", priceNum: 480, price: "৳ 480", desc: "A clean everyday style that works with casual and modern outfits.", img: "B04.png", tag: "B04", sizes: ["36", "37", "38", "39", "40", "41"], colors: ["Black", "Golden"]},
+            {category: "women", name: "Street Muse", priceNum: 490, price: "৳ 490", desc: "A fashion-forward sneaker style with an easy everyday feel.", img: "B02.png", tag: "Popular", sizes: ["39", "40", "41", "42"], colors: ["Black"]},
+            {category: "women", name: "Daily Glow", priceNum: 1650, price: "৳ 1,650", desc: "A versatile pair for casual outfits and daily movement.", img: "https://images.unsplash.com/photo-1560769629-975ec94e6a86?w=900&q=85", tag: "New", sizes: ["36", "37", "38", "39"], colors: ["White", "Orange", "Black"]},
+            {category: "women", name: "Urban Ease", priceNum: 1900, price: "৳ 1,900", desc: "A modern casual sneaker made to fit into everyday wardrobes.", img: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=900&q=85", tag: "New", sizes: ["36", "37", "38", "39", "40"], colors: ["Red", "White", "Black"]},
+            {category: "women", name: "Classic Move", priceNum: 1800, price: "৳ 1,800", desc: "A minimal sneaker concept for relaxed everyday styling.", img: "https://images.unsplash.com/photo-1525966222134-fcfa99b8ae77?w=900&q=85", tag: "Everyday", sizes: ["36", "37", "38", "39", "40"], colors: ["White", "Grey", "Black"]},
+            {category: "children", name: "Mini Runner", priceNum: 990, price: "৳ 990", desc: "A fun everyday sneaker style for active kids.", img: "C01.png", tag: "C01", sizes: ["28", "29", "30", "31", "32"], colors: ["Black", "White"]},
+            {category: "children", name: "Tiny Street", priceNum: 250, price: "৳ 250", desc: "A sporty kids' style with a modern streetwear look.", img: "C02.png", tag: "C02", sizes: ["29", "30", "31", "32", "33"], colors: ["Orange", "Yellow"]},
+            {category: "children", name: "Happy Move", priceNum: 600, price: "৳ 600", desc: "A casual everyday style for little feet.", img: "C13.png", tag: "C13", sizes: ["27", "28", "29", "30", "31"], colors: ["Black"]}, 
+            {category: "children", name: "Happy Move", priceNum: 390, price: "৳ 390", desc: "A casual everyday style for little feet.", img: "C08.png", tag: "C08", sizes: ["27", "28", "29", "30", "31"], colors: ["Brown", "White"]},
+            {category: "children", name: "Play Step", priceNum: 790, price: "৳ 790", desc: "An easy-to-wear casual pair for everyday play.", img: "C07.png", tag: "C07", sizes: ["28", "29", "30", "31", "32"], colors: ["Black"]},
+            {category: "children", name: "Little Classic", priceNum: 750, price: "৳ 750", desc: "A clean and easy everyday shoe for kids.", img: "C04.png", tag: "C04", sizes: ["28", "29", "30", "31", "32"], colors: ["White"]},
+            {category: "children", name: "Junior Flex", priceNum: 450, price: "৳ 450", desc: "A playful casual sneaker concept for active days.", img: "C11.png", tag: "C11", sizes: ["29", "30", "31", "32", "33"], colors: ["Black", "White"]},
+        ];
 
-    const WHATSAPP_NUMBER = "8801799208582"; 
-    let selectedProduct = null, selectedColor = "", selectedSize = ""; 
-    let cart = JSON.parse(localStorage.getItem("zutshoeCart") || "[]");
-    
-    const productModal = document.getElementById("productModal"), 
-          orderModal = document.getElementById("orderModal"), 
-          cartModal = document.getElementById("cartModal"), 
-          toast = document.getElementById("toast");
-
-    function showToast(message) {
-        toast.textContent = message; 
-        toast.classList.add("show"); 
-        clearTimeout(window.toastTimer); 
-        window.toastTimer = setTimeout(() => toast.classList.remove("show"), 2800);
-    }
-
-    function openModal(modal) {
-        modal.classList.add("show"); 
-        document.body.classList.add("modal-open");
-    }
-
-    function closeModal(modal) {
-        modal.classList.remove("show"); 
-        if (!document.querySelector(".modal.show")) document.body.classList.remove("modal-open");
-    }
-
-    function renderCategory(category, gridId) {
-        const grid = document.getElementById(gridId); 
-        products.filter(p => p.category === category).forEach((p, index) => {
-            const el = document.createElement("article"); 
-            el.className = "product" + (index >= 4 ? " hidden-product" : ""); 
-            el.innerHTML = `<div class="product-photo"><img src="${p.img}" alt="${p.name} footwear product" loading="lazy"><span class="tag">${p.tag}</span></div><div class="product-info"><h4>${p.name}</h4><div class="price">${p.price}</div><small>Sizes & colors available</small><button class="outline" data-index="${products.indexOf(p)}">View details</button></div>`; 
-            grid.appendChild(el);
-        });
-    }
-
-    renderCategory("men", "menGrid"); 
-    renderCategory("women", "womenGrid"); 
-    renderCategory("children", "childrenGrid");
-
-    document.querySelectorAll(".see-more").forEach(button => button.addEventListener("click", () => {
-        document.getElementById(button.dataset.grid).querySelectorAll(".hidden-product").forEach(p => p.classList.remove("hidden-product")); 
-        button.classList.add("is-expanded");
-    }));
-
-    document.querySelectorAll(".product-grid").forEach(grid => grid.addEventListener("click", event => {
-        const button = event.target.closest("button[data-index]"); 
-        if (!button) return; 
-        selectedProduct = products[Number(button.dataset.index)]; 
-        selectedColor = selectedProduct.colors[0]; 
-        selectedSize = selectedProduct.sizes[0]; 
-        document.getElementById("modalImg").src = selectedProduct.img; 
-        document.getElementById("modalImg").alt = selectedProduct.name; 
-        document.getElementById("modalName").textContent = selectedProduct.name; 
-        document.getElementById("modalPrice").textContent = selectedProduct.price; 
-        document.getElementById("modalDesc").textContent = selectedProduct.desc; 
-        document.getElementById("modalCategory").textContent = selectedProduct.category === "men" ? "Men's · Product details" : selectedProduct.category === "women" ? "Women's · Product details" : "Kid's · Product details"; 
-        document.getElementById("modalSizes").innerHTML = selectedProduct.sizes.map((size, index) => `<button type="button" class="size-option ${index === 0 ? "active" : ""}" data-size="${size}">${size}</button>`).join(""); 
-        document.getElementById("modalColors").innerHTML = selectedProduct.colors.map((color, index) => `<button type="button" class="color-option ${index === 0 ? "active" : ""}" data-color="${color}">${color}</button>`).join(""); 
-        document.getElementById("modalQty").value = 1; 
-        openModal(productModal);
-    }));
-
-    document.getElementById("modalColors").addEventListener("click", event => {
-        const button = event.target.closest(".color-option"); 
-        if (!button) return; 
-        selectedColor = button.dataset.color; 
-        document.querySelectorAll("#modalColors .color-option").forEach(b => b.classList.remove("active")); 
-        button.classList.add("active");
-    });
-
-    document.getElementById("modalSizes").addEventListener("click", event => {
-        const button = event.target.closest(".size-option"); 
-        if (!button) return; 
-        selectedSize = button.dataset.size; 
-        document.querySelectorAll("#modalSizes .size-option").forEach(b => b.classList.remove("active")); 
-        button.classList.add("active");
-    });
-
-    // Copy Direct Product Link Handler
-    document.getElementById("modalShareLink").addEventListener("click", () => {
-        if (!selectedProduct) return;
-        const productUrl = `${window.location.origin + window.location.pathname}#${selectedProduct.tag}`;
-        navigator.clipboard.writeText(productUrl).then(() => {
-            showToast("Product link copied! You can share it anywhere.");
-        });
-    });
-
-    function saveCart() {
-        localStorage.setItem("zutshoeCart", JSON.stringify(cart)); 
-        renderCart();
-    }
-
-    function renderCart() {
-        document.getElementById("cartCount").textContent = cart.reduce((n, i) => n + i.qty, 0); 
-        const box = document.getElementById("cartItems"); 
-        box.innerHTML = cart.length ? cart.map((i, n) => `<div class="cart-item"><img src="${i.img}" alt="${i.name}"><div><strong>${i.name}</strong><small>${i.price} · ${i.color} · Size ${i.size} · Qty ${i.qty}</small></div><button class="cart-remove" data-remove="${n}">Remove</button></div>`).join("") : '<p style="font-size:12px;color:#777;margin:5px 0 10px">Your cart is empty.</p>'; 
-        document.getElementById("cartTotal").textContent = cart.reduce((n, i) => n + i.qty, 0) + " item(s)";
-    }
-
-    document.getElementById("cartItems").addEventListener("click", e => {
-        const b = e.target.closest("[data-remove]"); 
-        if (!b) return; 
-        cart.splice(Number(b.dataset.remove), 1); 
-        saveCart();
-    });
-
-    document.getElementById("modalAddCart").addEventListener("click", () => {
-        if (!selectedProduct) return; 
-        const qty = Math.max(1, Math.min(20, Number(document.getElementById("modalQty").value) || 1)); 
-        const key = `${selectedProduct.name}|${selectedSize}|${selectedColor}`; 
-        const existing = cart.find(i => i.key === key); 
-        if (existing) existing.qty = Math.min(20, existing.qty + qty); 
-        else cart.push({key, name: selectedProduct.name, price: selectedProduct.price, img: selectedProduct.img, size: selectedSize, color: selectedColor, qty}); 
-        saveCart(); 
-        closeModal(productModal); 
-        showToast(`${selectedProduct.name} added to cart. You can keep shopping.`);
-    });
-
-    document.getElementById("modalOrder").addEventListener("click", () => {
-        if (!selectedProduct) return; 
-        const size = selectedSize, qty = Math.max(1, Math.min(20, Number(document.getElementById("modalQty").value) || 1)); 
-        document.getElementById("modalQty").value = qty; 
-        document.getElementById("orderSummaryImg").src = selectedProduct.img; 
-        document.getElementById("orderSummaryImg").alt = selectedProduct.name; 
-        document.getElementById("orderSummaryName").textContent = selectedProduct.name; 
-        document.getElementById("orderSummaryDetails").textContent = `${selectedProduct.price} · Color: ${selectedColor} · Size: ${size} · Quantity: ${qty}`; 
-        document.getElementById("orderForm").dataset.size = size; 
-        document.getElementById("orderForm").dataset.quantity = qty; 
-        closeModal(productModal); 
-        openModal(orderModal);
-    });
-
-    // Form Submit with phone number verification
-    document.getElementById("orderForm").addEventListener("submit", event => {
-        event.preventDefault(); 
-        if (!selectedProduct) return; 
+        const WHATSAPP_NUMBER = "8801799208582"; 
+        let selectedProduct = null, selectedColor = "", selectedSize = ""; 
+        let cart = JSON.parse(localStorage.getItem("zutshoeCart") || "[]");
         
-        const name = document.getElementById("customerName").value.trim();
-        const phone = document.getElementById("customerPhone").value.trim();
-        const address = document.getElementById("customerAddress").value.trim();
-        const form = event.target; 
+        const productModal = document.getElementById("productModal"), 
+              orderModal = document.getElementById("orderModal"), 
+              cartModal = document.getElementById("cartModal"), 
+              toast = document.getElementById("toast");
 
-        const phoneRegex = /^[0-9+\-\s()]{10,15}$/;
-        if (!phoneRegex.test(phone)) {
-            showToast("Please enter a valid phone number so we can confirm your order.");
-            document.getElementById("customerPhone").focus();
-            return;
+        function showToast(message) {
+            toast.textContent = message; 
+            toast.classList.add("show"); 
+            clearTimeout(window.toastTimer); 
+            window.toastTimer = setTimeout(() => toast.classList.remove("show"), 2800);
         }
 
-        const productDetails = cart.length ? cart.map((i, n) => `${n + 1}. ${i.name}\nImage: ${i.img}\nPrice: ${i.price}\nColor: ${i.color}\nSize: ${i.size}\nQuantity: ${i.qty}`).join("\n\n") : `Product: ${selectedProduct.name}\nImage: ${selectedProduct.img}\nPrice: ${selectedProduct.price}\nColor: ${selectedColor}\nSize: ${form.dataset.size}\nQuantity: ${form.dataset.quantity}`; 
-        
-        const message = `ZUTSHOE ORDER\n\nPRODUCT DETAILS\n${productDetails}\n\nCUSTOMER DETAILS\nName: ${name}\nPhone: ${phone}\nAddress: ${address}\n\nPlease confirm my order.`; 
-        
-        window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`, "_blank", "noopener"); 
-        cart = []; 
-        saveCart(); 
-        closeModal(orderModal);
-    });
+        function openModal(modal) {
+            modal.classList.add("show"); 
+            document.body.classList.add("modal-open");
+        }
 
-    document.getElementById("cartBtn").onclick = () => {renderCart(); openModal(cartModal)}; 
-    document.getElementById("closeCartModal").onclick = () => closeModal(cartModal); 
-    document.getElementById("cartContinue").onclick = () => {closeModal(cartModal); document.getElementById("shop").scrollIntoView({behavior: "smooth"})}; 
-    
-    document.getElementById("cartCheckout").onclick = () => {
-        if (!cart.length) {showToast("Your cart is empty."); return} 
-        closeModal(cartModal); 
-        showToast("Please add your customer details below to complete checkout."); 
-        openModal(orderModal); 
-        selectedProduct = {name: "Multiple items", price: "See cart", img: cart[0].img, desc: "Multiple cart items"}; 
-        document.getElementById("orderSummaryImg").src = cart[0].img; 
-        document.getElementById("orderSummaryName").textContent = "Multiple items"; 
-        document.getElementById("orderSummaryDetails").textContent = cart.map(i => `${i.name} · ${i.color} · Size ${i.size} · Qty ${i.qty}`).join(" | "); 
-        document.getElementById("orderForm").dataset.size = "Multiple"; 
-        document.getElementById("orderForm").dataset.quantity = "Multiple";
-    }; 
+        function closeModal(modal) {
+            modal.classList.remove("show"); 
+            if (!document.querySelector(".modal.show")) document.body.classList.remove("modal-open");
+        }
 
-    document.getElementById("closeProductModal").onclick = () => closeModal(productModal); 
-    document.getElementById("closeOrderModal").onclick = () => closeModal(orderModal);
+        function renderCategory(category, gridId) {
+            const grid = document.getElementById(gridId); 
+            products.filter(p => p.category === category).forEach((p, index) => {
+                const el = document.createElement("article"); 
+                el.className = "product" + (index >= 4 ? " hidden-product" : ""); 
+                const displayImg = Array.isArray(p.images) ? p.images[0] : p.img;
+                el.innerHTML = `<div class="product-photo"><img src="${displayImg}" alt="${p.name} footwear product" loading="lazy"><span class="tag">${p.tag}</span></div><div class="product-info"><h4>${p.name}</h4><div class="price">${p.price}</div><small>Sizes & colors available</small><button class="outline" data-index="${products.indexOf(p)}">View details</button></div>`; 
+                grid.appendChild(el);
+            });
+        }
 
-    [productModal, orderModal, cartModal].forEach(modal => modal.addEventListener("click", event => {
-        if (event.target === modal) closeModal(modal);
-    })); 
+        renderCategory("men", "menGrid"); 
+        renderCategory("women", "womenGrid"); 
+        renderCategory("children", "childrenGrid");
 
-    document.addEventListener("keydown", event => {
-        if (event.key === "Escape") {closeModal(productModal); closeModal(orderModal);} 
-    }); 
+        document.querySelectorAll(".see-more").forEach(button => button.addEventListener("click", () => {
+            document.getElementById(button.dataset.grid).querySelectorAll(".hidden-product").forEach(p => p.classList.remove("hidden-product")); 
+            button.classList.add("is-expanded");
+        }));
 
-    document.getElementById("menuBtn").addEventListener("click", () => document.getElementById("navLinks").classList.toggle("open")); 
-    document.querySelectorAll("#navLinks a").forEach(link => link.addEventListener("click", () => document.getElementById("navLinks").classList.remove("open"))); 
-    document.getElementById("year").textContent = new Date().getFullYear(); 
-    renderCart();
+        function updateModalPriceAndQty() {
+            if (!selectedProduct) return;
+            const qty = Math.max(1, Math.min(20, Number(document.getElementById("modalQty").value) || 1));
+            // Extract numeric price if priceNum is missing
+            const unitPrice = selectedProduct.priceNum || parseInt(selectedProduct.price.replace(/[^0-9]/g, '')) || 0;
+            const total = unitPrice * qty;
+            document.getElementById("modalCalculatedPrice").textContent = `= ৳ ${total.toLocaleString()}`;
+        }
 
-    // Auto-scroll and open product modal if the link has a product tag hash (e.g., #A01)
-    window.addEventListener("DOMContentLoaded", () => {
-        const hash = window.location.hash.replace("#", "");
-        if (hash) {
-            const foundProduct = products.find(p => p.tag.toLowerCase() === hash.toLowerCase());
-            if (foundProduct) {
-                // Scroll down to shop section smoothly
-                document.getElementById("shop").scrollIntoView({behavior: "smooth"});
-                
-                // If product is hidden by the 4-per-row limit, automatically expand its category grid
-                const categoryGridId = foundProduct.category + "Grid";
-                document.getElementById(categoryGridId).querySelectorAll(".hidden-product").forEach(p => p.classList.remove("hidden-product"));
-                const seeMoreBtn = document.querySelector(`.see-more[data-grid="${categoryGridId}"]`);
-                if (seeMoreBtn) seeMoreBtn.classList.add("is-expanded");
+        document.getElementById("modalQty").addEventListener("input", updateModalPriceAndQty);
 
-                // Open the modal after a short delay
-                setTimeout(() => {
-                    selectedProduct = foundProduct;
-                    selectedColor = selectedProduct.colors[0];
-                    selectedSize = selectedProduct.sizes[0];
-                    document.getElementById("modalImg").src = selectedProduct.img;
-                    document.getElementById("modalImg").alt = selectedProduct.name;
-                    document.getElementById("modalName").textContent = selectedProduct.name;
-                    document.getElementById("modalPrice").textContent = selectedProduct.price;
-                    document.getElementById("modalDesc").textContent = selectedProduct.desc;
-                    document.getElementById("modalCategory").textContent = selectedProduct.category === "men" ? "Men's · Product details" : foundProduct.category === "women" ? "Women's · Product details" : "Kid's · Product details";
-                    document.getElementById("modalSizes").innerHTML = selectedProduct.sizes.map((size, index) => `<button type="button" class="size-option ${index === 0 ? "active" : ""}" data-size="${size}">${size}</button>`).join("");
-                    document.getElementById("modalColors").innerHTML = selectedProduct.colors.map((color, index) => `<button type="button" class="color-option ${index === 0 ? "active" : ""}" data-color="${color}">${color}</button>`).join("");
-                    document.getElementById("modalQty").value = 1;
-                    openModal(productModal);
-                }, 400);
+        function populateAndOpenProductModal(product) {
+            selectedProduct = product;
+            selectedColor = selectedProduct.colors[0];
+            selectedSize = selectedProduct.sizes[0];
+
+            const imageList = Array.isArray(selectedProduct.images) ? selectedProduct.images : [selectedProduct.img];
+            document.getElementById("modalMainImg").src = imageList[0];
+            document.getElementById("modalMainImg").alt = selectedProduct.name;
+
+            const thumbContainer = document.getElementById("modalThumbnails");
+            thumbContainer.innerHTML = imageList.map((imgUrl, i) => `
+                <div class="thumb-img ${i === 0 ? 'active' : ''}" data-img="${imgUrl}">
+                    <img src="${imgUrl}" alt="Thumbnail">
+                </div>
+            `).join("");
+
+            document.getElementById("modalName").textContent = selectedProduct.name;
+            document.getElementById("modalPrice").textContent = selectedProduct.price;
+            document.getElementById("modalDesc").textContent = selectedProduct.desc;
+            document.getElementById("modalCategory").textContent = selectedProduct.category === "men" ? "Men's · Product details" : selectedProduct.category === "women" ? "Women's · Product details" : "Kid's · Product details";
+            document.getElementById("modalSizes").innerHTML = selectedProduct.sizes.map((size, index) => `<button type="button" class="size-option ${index === 0 ? "active" : ""}" data-size="${size}">${size}</button>`).join("");
+            document.getElementById("modalColors").innerHTML = selectedProduct.colors.map((color, index) => `<button type="button" class="color-option ${index === 0 ? "active" : ""}" data-color="${color}">${color}</button>`).join("");
+            document.getElementById("modalQty").value = 1;
+            
+            updateModalPriceAndQty();
+            openModal(productModal);
+        }
+
+        document.querySelectorAll(".product-grid").forEach(grid => grid.addEventListener("click", event => {
+            const button = event.target.closest("button[data-index]"); 
+            if (!button) return; 
+            const product = products[Number(button.dataset.index)];
+            populateAndOpenProductModal(product);
+        }));
+
+        document.getElementById("modalThumbnails").addEventListener("click", e => {
+            const thumb = e.target.closest(".thumb-img");
+            if (!thumb) return;
+            document.querySelectorAll(".thumb-img").forEach(t => t.classList.remove("active"));
+            thumb.classList.add("active");
+            document.getElementById("modalMainImg").src = thumb.dataset.img;
+        });
+
+        document.getElementById("modalColors").addEventListener("click", event => {
+            const button = event.target.closest(".color-option"); 
+            if (!button) return; 
+            selectedColor = button.dataset.color; 
+            document.querySelectorAll("#modalColors .color-option").forEach(b => b.classList.remove("active")); 
+            button.classList.add("active");
+        });
+
+        document.getElementById("modalSizes").addEventListener("click", event => {
+            const button = event.target.closest(".size-option"); 
+            if (!button) return; 
+            selectedSize = button.dataset.size; 
+            document.querySelectorAll("#modalSizes .size-option").forEach(b => b.classList.remove("active")); 
+            button.classList.add("active");
+        });
+
+        document.getElementById("modalShareLink").addEventListener("click", () => {
+            if (!selectedProduct) return;
+            const productUrl = `${window.location.origin + window.location.pathname}#${selectedProduct.tag}`;
+            navigator.clipboard.writeText(productUrl).then(() => {
+                showToast("Product link copied! You can share it anywhere.");
+            });
+        });
+
+        function saveCart() {
+            localStorage.setItem("zutshoeCart", JSON.stringify(cart)); 
+            renderCart();
+        }
+
+        function renderCart() {
+            document.getElementById("cartCount").textContent = cart.reduce((n, i) => n + i.qty, 0); 
+            const box = document.getElementById("cartItems"); 
+            box.innerHTML = cart.length ? cart.map((i, n) => `<div class="cart-item"><img src="${i.img}" alt="${i.name}"><div><strong>${i.name}</strong><small>${i.price} · ${i.color} · Size ${i.size} · Qty ${i.qty}</small></div><button class="cart-remove" data-remove="${n}">Remove</button></div>`).join("") : '<p style="font-size:12px;color:#777;margin:5px 0 10px">Your cart is empty.</p>'; 
+            document.getElementById("cartTotal").textContent = cart.reduce((n, i) => n + i.qty, 0) + " item(s)";
+        }
+
+        document.getElementById("cartItems").addEventListener("click", e => {
+            const b = e.target.closest("[data-remove]"); 
+            if (!b) return; 
+            cart.splice(Number(b.dataset.remove), 1); 
+            saveCart();
+        });
+
+        document.getElementById("modalAddCart").addEventListener("click", () => {
+            if (!selectedProduct) return; 
+            const qty = Math.max(1, Math.min(20, Number(document.getElementById("modalQty").value) || 1)); 
+            const displayImg = Array.isArray(selectedProduct.images) ? selectedProduct.images[0] : selectedProduct.img;
+            const unitPriceNum = selectedProduct.priceNum || parseInt(selectedProduct.price.replace(/[^0-9]/g, '')) || 0;
+            const key = `${selectedProduct.name}|${selectedSize}|${selectedColor}`; 
+            const existing = cart.find(i => i.key === key); 
+            if (existing) existing.qty = Math.min(20, existing.qty + qty); 
+            else cart.push({key, name: selectedProduct.name, price: selectedProduct.price, priceNum: unitPriceNum, img: displayImg, size: selectedSize, color: selectedColor, qty}); 
+            saveCart(); 
+            closeModal(productModal); 
+            showToast(`${selectedProduct.name} added to cart. You can keep shopping.`);
+        });
+
+        document.getElementById("modalOrder").addEventListener("click", () => {
+            if (!selectedProduct) return; 
+            const size = selectedSize, qty = Math.max(1, Math.min(20, Number(document.getElementById("modalQty").value) || 1)); 
+            const unitPriceNum = selectedProduct.priceNum || parseInt(selectedProduct.price.replace(/[^0-9]/g, '')) || 0;
+            const totalPrice = unitPriceNum * qty;
+            const totalPriceStr = `৳ ${totalPrice.toLocaleString()}`;
+            const displayImg = Array.isArray(selectedProduct.images) ? selectedProduct.images[0] : selectedProduct.img;
+
+            document.getElementById("orderSummaryImg").src = displayImg; 
+            document.getElementById("orderSummaryImg").alt = selectedProduct.name; 
+            document.getElementById("orderSummaryName").textContent = selectedProduct.name; 
+            document.getElementById("orderSummaryDetails").textContent = `${totalPriceStr} (${selectedProduct.price} × ${qty}) · Color: ${selectedColor} · Size: ${size}`; 
+            
+            const form = document.getElementById("orderForm");
+            form.dataset.size = size; 
+            form.dataset.quantity = qty; 
+            form.dataset.totalPrice = totalPriceStr;
+
+            closeModal(productModal); 
+            openModal(orderModal);
+        });
+
+        document.getElementById("orderForm").addEventListener("submit", event => {
+            event.preventDefault(); 
+            if (!selectedProduct) return; 
+            
+            const name = document.getElementById("customerName").value.trim();
+            const phone = document.getElementById("customerPhone").value.trim();
+            const address = document.getElementById("customerAddress").value.trim();
+            const form = event.target; 
+
+            const phoneRegex = /^[0-9+\-\s()]{10,15}$/;
+            if (!phoneRegex.test(phone)) {
+                showToast("Please enter a valid phone number so we can confirm your order.");
+                document.getElementById("customerPhone").focus();
+                return;
             }
-        }
-    });
-</script>
-</body>
 
+            const productDetails = cart.length ? cart.map((i, n) => `${n + 1}. ${i.name}\nPrice: ${i.price} × ${i.qty} = ৳ ${( (i.priceNum || parseInt(i.price.replace(/[^0-9]/g, '')) || 0) * i.qty).toLocaleString()}\nColor: ${i.color}\nSize: ${i.size}`).join("\n\n") : `Product: ${selectedProduct.name}\nTotal Price: ${form.dataset.totalPrice} (${selectedProduct.price} × ${form.dataset.quantity})\nColor: ${selectedColor}\nSize: ${form.dataset.size}\nQuantity: ${form.dataset.quantity}`; 
+            
+            const message = `ZUTSHOE ORDER\n\nPRODUCT DETAILS\n${productDetails}\n\nCUSTOMER DETAILS\nName: ${name}\nPhone: ${phone}\nAddress: ${address}\n\nPlease confirm my order.`; 
+            
+            window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`, "_blank", "noopener"); 
+            cart = []; 
+            saveCart(); 
+            closeModal(orderModal);
+        });
+
+        document.getElementById("cartBtn").onclick = () => {renderCart(); openModal(cartModal)}; 
+        document.getElementById("closeCartModal").onclick = () => closeModal(cartModal); 
+        document.getElementById("cartContinue").onclick = () => {closeModal(cartModal); document.getElementById("shop").scrollIntoView({behavior: "smooth"})}; 
+        
+        document.getElementById("cartCheckout").onclick = () => {
+            if (!cart.length) {showToast("Your cart is empty."); return} 
+            closeModal(cartModal); 
+            openModal(orderModal); 
+            const totalCartPrice = cart.reduce((sum, item) => sum + ((item.priceNum || parseInt(item.price.replace(/[^0-9]/g, '')) || 0) * item.qty), 0);
+            selectedProduct = {name: "Multiple items", price: `৳ ${totalCartPrice.toLocaleString()}`, img: cart[0].img, desc: "Multiple cart items"}; 
+            document.getElementById("orderSummaryImg").src = cart[0].img; 
+            document.getElementById("orderSummaryName").textContent = "Multiple items in cart"; 
+            document.getElementById("orderSummaryDetails").textContent = `Total: ৳ ${totalCartPrice.toLocaleString()} (${cart.reduce((n,i)=>n+i.qty,0)} items)`; 
+            const form = document.getElementById("orderForm");
+            form.dataset.size = "Multiple"; 
+            form.dataset.quantity = "Multiple";
+            form.dataset.totalPrice = `৳ ${totalCartPrice.toLocaleString()}`;
+        }; 
+
+        document.getElementById("closeProductModal").onclick = () => closeModal(productModal); 
+        document.getElementById("closeOrderModal").onclick = () => closeModal(orderModal);
+
+        [productModal, orderModal, cartModal].forEach(modal => modal.addEventListener("click", event => {
+            if (event.target === modal) closeModal(modal);
+        })); 
+
+        document.addEventListener("keydown", event => {
+            if (event.key === "Escape") {closeModal(productModal); closeModal(orderModal); closeModal(cartModal);} 
+        }); 
+
+        document.getElementById("menuBtn").addEventListener("click", () => document.getElementById("navLinks").classList.toggle("open")); 
+        document.querySelectorAll("#navLinks a").forEach(link => link.addEventListener("click", () => document.getElementById("navLinks").classList.remove("open"))); 
+        document.getElementById("year").textContent = new Date().getFullYear(); 
+        renderCart();
+
+        window.addEventListener("DOMContentLoaded", () => {
+            const hash = window.location.hash.replace("#", "");
+            if (hash) {
+                const foundProduct = products.find(p => p.tag.toLowerCase() === hash.toLowerCase());
+                if (foundProduct) {
+                    document.getElementById("shop").scrollIntoView({behavior: "smooth"});
+                    const categoryGridId = foundProduct.category + "Grid";
+                    document.getElementById(categoryGridId).querySelectorAll(".hidden-product").forEach(p => p.classList.remove("hidden-product"));
+                    const seeMoreBtn = document.querySelector(`.see-more[data-grid="${categoryGridId}"]`);
+                    if (seeMoreBtn) seeMoreBtn.classList.add("is-expanded");
+
+                    setTimeout(() => {
+                        populateAndOpenProductModal(foundProduct);
+                    }, 400);
+                }
+            }
+        });
+    </script>
+</body>
 </html>
