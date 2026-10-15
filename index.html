@@ -1454,7 +1454,14 @@
 
     <script>
         const products = [
-            {category: "men", name: "Street Runner", priceNum: 790, price: "৳ 790", desc: "A versatile sneaker for everyday outfits and casual street style. Confirm current stock before ordering.", img: "A01.png", tag: "A01", sizes: ["39", "40", "41", "42", "43", "44"], colors: ["Black"]},
+            // First Men's Product contains 3 extra sub-images for testing multi-image thumbnails:
+            {
+                category: "men", name: "Street Runner", priceNum: 790, price: "৳ 790", 
+                desc: "A versatile sneaker for everyday outfits and casual street style. Confirm current stock before ordering.", 
+                img: "A01.png", 
+                images: ["A01.png", "A01_side.png", "A01_back.png", "A01_sole.png"], 
+                tag: "A01", sizes: ["39", "40", "41", "42", "43", "44"], colors: ["Black"]
+            },
             {category: "men", name: "Classic Low", priceNum: 699, price: "৳ 699", desc: "A clean low-profile style made for everyday casual wear.", img: "A02.png", tag: "A02", sizes: ["39", "40", "41", "42", "43", "44"], colors: ["Black", "Brown"]},
             {category: "men", name: "Urban Move", priceNum: 450, price: "৳ 450", desc: "A sporty everyday sneaker concept for busy days and active outfits.", img: "A09.png", tag: "A09", sizes: ["40", "41", "42", "43", "44"], colors: ["Black","White"]},
             {category: "men", name: "Daily Flex", priceNum: 650, price: "৳ 650", desc: "An easy-to-style casual pair for daily use.", img: "A15.png", tag: "A15", sizes: ["40", "41", "42", "43"], colors: ["Light"]},
@@ -1525,7 +1532,6 @@
         function updateModalPriceAndQty() {
             if (!selectedProduct) return;
             const qty = Math.max(1, Math.min(20, Number(document.getElementById("modalQty").value) || 1));
-            // Extract numeric price if priceNum is missing
             const unitPrice = selectedProduct.priceNum || parseInt(selectedProduct.price.replace(/[^0-9]/g, '')) || 0;
             const total = unitPrice * qty;
             document.getElementById("modalCalculatedPrice").textContent = `= ৳ ${total.toLocaleString()}`;
@@ -1627,7 +1633,7 @@
             const key = `${selectedProduct.name}|${selectedSize}|${selectedColor}`; 
             const existing = cart.find(i => i.key === key); 
             if (existing) existing.qty = Math.min(20, existing.qty + qty); 
-            else cart.push({key, name: selectedProduct.name, price: selectedProduct.price, priceNum: unitPriceNum, img: displayImg, size: selectedSize, color: selectedColor, qty}); 
+            else cart.push({key, name: selectedProduct.name, tag: selectedProduct.tag, price: selectedProduct.price, priceNum: unitPriceNum, img: displayImg, size: selectedSize, color: selectedColor, qty}); 
             saveCart(); 
             closeModal(productModal); 
             showToast(`${selectedProduct.name} added to cart. You can keep shopping.`);
@@ -1663,6 +1669,7 @@
             const phone = document.getElementById("customerPhone").value.trim();
             const address = document.getElementById("customerAddress").value.trim();
             const form = event.target; 
+            const baseUrl = window.location.origin + window.location.pathname;
 
             const phoneRegex = /^[0-9+\-\s()]{10,15}$/;
             if (!phoneRegex.test(phone)) {
@@ -1671,7 +1678,9 @@
                 return;
             }
 
-            const productDetails = cart.length ? cart.map((i, n) => `${n + 1}. ${i.name}\nPrice: ${i.price} × ${i.qty} = ৳ ${( (i.priceNum || parseInt(i.price.replace(/[^0-9]/g, '')) || 0) * i.qty).toLocaleString()}\nColor: ${i.color}\nSize: ${i.size}`).join("\n\n") : `Product: ${selectedProduct.name}\nTotal Price: ${form.dataset.totalPrice} (${selectedProduct.price} × ${form.dataset.quantity})\nColor: ${selectedColor}\nSize: ${form.dataset.size}\nQuantity: ${form.dataset.quantity}`; 
+            const productDetails = cart.length 
+                ? cart.map((i, n) => `${n + 1}. ${i.name}\nTag: ${i.tag || 'N/A'}\nPrice: ${i.price} × ${i.qty} = ৳ ${((i.priceNum || parseInt(i.price.replace(/[^0-9]/g, '')) || 0) * i.qty).toLocaleString()}\nColor: ${i.color}\nSize: ${i.size}\nLink: ${baseUrl}#${i.tag}`).join("\n\n") 
+                : `Product: ${selectedProduct.name}\nTag: ${selectedProduct.tag}\nTotal Price: ${form.dataset.totalPrice} (${selectedProduct.price} × ${form.dataset.quantity})\nColor: ${selectedColor}\nSize: ${form.dataset.size}\nQuantity: ${form.dataset.quantity}\nLink: ${baseUrl}#${selectedProduct.tag}`; 
             
             const message = `ZUTSHOE ORDER\n\nPRODUCT DETAILS\n${productDetails}\n\nCUSTOMER DETAILS\nName: ${name}\nPhone: ${phone}\nAddress: ${address}\n\nPlease confirm my order.`; 
             
