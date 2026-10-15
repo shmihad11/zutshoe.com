@@ -1455,6 +1455,8 @@
     <script>
         const products = [
             // First Men's Product contains 3 extra sub-images for testing multi-image thumbnails:
+            {category: "men", name: "Urban Move", priceNum: 450, price: "৳ 450", desc: "A sporty everyday sneaker concept for busy days and active outfits.", img: "A09.png", tag: "A09", sizes: ["40", "41", "42", "43", "44"], colors: ["Black","White"]},
+
             {
                 category: "men", name: "Street Runner", priceNum: 790, price: "৳ 790", 
                 desc: "A versatile sneaker for everyday outfits and casual street style. Confirm current stock before ordering.", 
@@ -1520,8 +1522,7 @@
                 const el = document.createElement("article"); 
                 el.className = "product" + (index >= 4 ? " hidden-product" : ""); 
                 const displayImg = Array.isArray(p.images) ? p.images[0] : p.img;
-                el.innerHTML = `<div class="product-photo"><img src="${displayImg}" alt="${p.name} footwear product" loading="lazy"><span class="tag">${p.tag}</span></div><div class="product-info"><h4>${p.name}</h4><div class="price">${p.price}</div><small>Sizes & colors available</small><button class="outline" data-index="${products.indexOf(p)}">View details</button></div>`; 
-                grid.appendChild(el);
+el.innerHTML = `<div class="product-photo"><img src="${displayImg}" alt="${p.name} footwear product" loading="lazy"><span class="tag">${p.tag}</span></div><div class="product-info"><h4>${p.name}</h4><div class="price">${p.price}</div><small>${p.desc}</small><button class="outline" data-index="${products.indexOf(p)}">View details</button></div>`;                grid.appendChild(el);
             });
         }
 
