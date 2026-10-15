@@ -1522,8 +1522,7 @@
                 const el = document.createElement("article"); 
                 el.className = "product" + (index >= 4 ? " hidden-product" : ""); 
                 const displayImg = Array.isArray(p.images) ? p.images[0] : p.img;
-                el.innerHTML = `<div class="product-photo"><img src="${displayImg}" alt="${p.name} footwear product" loading="lazy"><span class="tag">${p.tag}</span></div><div class="product-info"><h4>${p.name}</h4><div class="price">${p.price}</div><button class="outline" data-index="${products.indexOf(p)}">View details</button></div>`; 
-
+                el.innerHTML = `<div class="product-photo"><img src="${displayImg}" alt="${p.name} footwear product" loading="lazy"><span class="tag">${p.tag}</span></div><div class="product-info"><h4>${p.name}</h4><div class="price">${p.price}</div><small>Sizes & colors available</small><button class="outline" data-index="${products.indexOf(p)}">View details</button></div>`; 
         }
 
         renderCategory("men", "menGrid"); 
