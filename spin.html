@@ -237,15 +237,13 @@
             <p style="margin:0 0 10px; color:#ddd;" id="resultText"></p>
             <div>Your Official Promo Key:</div>
             <div class="code-badge" id="codeBadge">ZUT-X00000</div>
-            <div class="verify-note">🔒 This encrypted promo key is registered for store order verification.</div>
+            <div class="verify-note">🔒 Valid for 24 hours. Encrypted promo key registered for order verification.</div>
             <a class="claim-btn" id="claimBtn" href="#" target="_blank">Send & Claim on WhatsApp ↗</a>
         </div>
     </div>
 
     <script>
         const WHATSAPP_NUMBER = "8801799208582";
-        
-        // Secret salt key used for encryption matching
         const SECRET_SALT = 38291;
         
         const sectors = [
@@ -318,14 +316,22 @@
 
         drawWheel();
 
-        // Check if user has already spun
+        // Check if user has an active 24-hour spin session
         const savedOffer = localStorage.getItem("zutshoe_spin_offer");
         const savedCode = localStorage.getItem("zutshoe_spin_code");
+        const savedExpiry = localStorage.getItem("zutshoe_spin_expiry");
+        const currentTime = new Date().getTime();
 
-        if (savedOffer && savedCode) {
+        if (savedOffer && savedCode && savedExpiry && currentTime < savedExpiry) {
+            // Within 24 hours: Lock spin button and show their active result
             spinBtn.disabled = true;
             spinBtn.textContent = "DONE";
             showResult(savedOffer, savedCode);
+        } else {
+            // After 24 hours (or first time): Clear old data so they can spin again!
+            localStorage.removeItem("zutshoe_spin_offer");
+            localStorage.removeItem("zutshoe_spin_code");
+            localStorage.removeItem("zutshoe_spin_expiry");
         }
 
         function showResult(offer, code) {
@@ -337,18 +343,15 @@
             resultCard.classList.add("show");
         }
 
-        // Encryption function: Generates tough-looking hex keys
         function generateCrypticCode(percent) {
             const randomSeed = Math.floor(1000 + Math.random() * 9000);
             const checksum = (randomSeed * percent + SECRET_SALT) % 16;
             const hexSum = checksum.toString(16).toUpperCase();
-            
-            // Format: ZUT-[Percent Hex Prefix][RandomDigits][ChecksumHex]
             return `ZUT-${percent.toString(16).toUpperCase()}${randomSeed}${hexSum}`;
         }
 
         spinBtn.addEventListener("click", () => {
-            if (isSpinning || localStorage.getItem("zutshoe_spin_offer")) return;
+            if (isSpinning) return;
 
             isSpinning = true;
             spinBtn.disabled = true;
@@ -378,11 +381,14 @@
                     isSpinning = false;
                     spinBtn.textContent = "DONE";
 
-                    // Generate encrypted key
                     const encryptedCode = generateCrypticCode(winningSector.percent);
+                    
+                    // Set expiration time to 24 hours from now (24 * 60 * 60 * 1000 ms)
+                    const expiryTime = new Date().getTime() + (24 * 60 * 60 * 1000);
 
                     localStorage.setItem("zutshoe_spin_offer", winningSector.value);
                     localStorage.setItem("zutshoe_spin_code", encryptedCode);
+                    localStorage.setItem("zutshoe_spin_expiry", expiryTime);
 
                     showResult(winningSector.value, encryptedCode);
                 }
