@@ -155,79 +155,108 @@
             font-size: 20px
         }
 
+        /* Full-Width Immersive Hero Section matching reference design */
         .hero {
-            background: #f0efeb;
-            min-height: 570px;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            overflow: hidden
-        }
-
-        .hero-copy {
-            padding: 90px max(40px, calc((100vw - var(--max))/2)) 80px max(24px, calc((100vw - var(--max))/2));
+            position: relative;
+            height: 85vh;
+            min-height: 560px;
+            max-height: 780px;
             display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: flex-start
+            align-items: flex-end;
+            background: #111;
+            overflow: hidden;
+            padding-bottom: 70px;
         }
 
-        .eyebrow {
-            font-size: 10px;
-            letter-spacing: .2em;
-            text-transform: uppercase;
-            font-weight: 800;
-            color: #666
+        .hero-bg {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: bottom;
+        }
+
+        .hero::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.45) 60%, rgba(0,0,0,0.75) 100%);
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            width: min(var(--max), calc(100% - 48px));
+            margin: 0 auto;
+            color: #fff;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            width: 100%;
+            padding: 0 84px;
         }
 
         .hero h1 {
-            font-size: clamp(48px, 6vw, 82px);
-            letter-spacing: -.075em;
-            line-height: .94;
-            margin: 22px 0 18px;
-            max-width: 620px
+            font-size: clamp(38px, 5.5vw, 68px);
+            letter-spacing: -.04em;
+            line-height: 1.08;
+            margin: 0 0 14px;
+            font-weight: 700;
+            color: #fff;
         }
 
         .hero p {
-            color: #5f5f5f;
-            line-height: 1.7;
+            color: rgba(255, 255, 255, 0.85);
             font-size: 14px;
-            max-width: 390px;
-            margin: 0 0 28px
+            line-height: 1.6;
+            margin: 0 0 24px;
+            max-width: 420px;
         }
 
-        .hero-actions {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap
+        .hero-btn {
+            background: #fff;
+            color: #111;
+            border: none;
+            padding: 13px 26px;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            border-radius: 30px;
+            transition: .2s;
+            display: inline-block;
         }
 
-        .hero-visual {
-            position: relative;
-            min-height: 570px;
-            background: #deddd8;
-            overflow: hidden
-        }
-
-        .hero-visual img {
-            width: 100%;
-            height: 100%;
-            position: absolute;
-            inset: 0;
-            object-fit: cover;
-            object-position: center
-        }
-
-        .hero-tag {
-            position: absolute;
-            bottom: 25px;
-            left: 25px;
+        .hero-btn:hover {
             background: var(--accent);
-            color: white;
-            padding: 13px 16px;
+            color: #fff;
+        }
+
+        .hero-pagination {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .hero-dot {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            border: none;
+            color: #fff;
             font-size: 10px;
-            font-weight: 900;
-            letter-spacing: .1em;
-            text-transform: uppercase
+            font-weight: 700;
+            display: grid;
+            place-items: center;
+            cursor: pointer;
+            transition: .2s;
+        }
+
+        .hero-dot.active {
+            background: #fff;
+            color: #111;
         }
 
         .trust {
@@ -423,6 +452,15 @@
             color: var(--muted);
             font-size: 10px;
             margin: 7px 0 13px
+        }
+
+        /* Single-line description truncation with ellipsis */
+        .truncate-desc {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: block;
+            max-width: 100%;
         }
 
         .outline {
@@ -951,15 +989,7 @@
             }
 
             .hero {
-                min-height: 500px
-            }
-
-            .hero-visual {
-                min-height: 500px
-            }
-
-            .hero-copy {
-                padding: 65px 30px
+                height: 70vh;
             }
 
             .product-photo {
@@ -987,6 +1017,24 @@
         }
 
         @media(max-width:650px) {
+    /* Reduce side padding on mobile screens */
+    .hero-content {
+        padding: 0 16px; /* Change this to 16px or 20px for mobile */
+    }
+    
+    .hero-bg {
+        object-position: 75% center; 
+    }
+    
+    .hero {
+        height: 60vh;
+        min-height: 420px;
+        padding-bottom: 40px;
+    }
+    
+    .hero h1 {
+        font-size: 32px;
+    }
             .wrap {
                 width: calc(100% - 32px)
             }
@@ -1043,20 +1091,19 @@
             }
 
             .hero {
-                grid-template-columns: 1fr;
-                min-height: 0
-            }
-
-            .hero-copy {
-                padding: 65px 24px 45px
+                height: 65vh;
+                min-height: 480px;
+                padding-bottom: 40px;
             }
 
             .hero h1 {
-                font-size: 56px
+                font-size: 38px
             }
 
-            .hero-visual {
-                min-height: 330px
+            .hero-content {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 20px;
             }
 
             .trust {
@@ -1199,7 +1246,7 @@
             }
 
             .hero h1 {
-                font-size: 48px
+                font-size: 32px
             }
 
             .category {
@@ -1226,21 +1273,11 @@
                 grid-template-columns: 1fr
             }
         }
-
-        @media(max-width:380px) {
-            .hero h1 {
-                font-size: 44px
-            }
-
-            .product-photo {
-                height: 150px
-            }
-        }
     </style>
 </head>
 
 <body>
-    <div class="announcement">Everyday footwear, made easy · Hazaribagh, Dhaka</div>
+    <div class="announcement">Everyday footwear, made easy · Dhaka, Bangladesh</div>
     <header class="header">
         <div class="wrap nav">
             <a class="brand" href="#" aria-label="Zutshoe home"><img class="brand-logo" src="logo.png"
@@ -1254,18 +1291,39 @@
         </div>
     </header>
     <main>
-        <section class="hero">
-            <div class="hero-copy"><span class="eyebrow">Step into your everyday</span>
-                <h1>Step Into Your<br>Next Style.</h1>
-                <p>From everyday comfort to standout street style, explore footwear that fits your day and your own way.
-                </p>
-                <div class="hero-actions"><a class="cta" href="#shop">Explore collection <span>↗</span></a></div>
+        <!-- Updated Luxury Hero Section matching your reference design -->
+                <section class="hero" id="heroSection">
+            <img class="hero-bg" id="heroBg" src="herobg.png" alt="Luxury footwear showcase">
+            <div class="hero-content">
+            <div>
+                <h1 id="heroTitle">Step Into Luxury.<br>Own Every Moment.</h1>
+                <p id="heroDesc">Explore men's, women's and kids' footwear collections.</p>
+                <a class="hero-btn" href="#shop" id="heroLink">Shop Now</a>
             </div>
-            <div class="hero-visual"><img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=1200&q=85"
-                    alt="Red athletic sneaker in a studio setting">
-                <div class="hero-tag">Move your way · Zutshoe</div>
+            <div class="hero-pagination" id="heroDots">
+                <button class="hero-dot active" data-slide="0">1</button>
+                <button class="hero-dot" data-slide="1">2</button>
+                <button class="hero-dot" data-slide="2">3</button>
+            </div>
             </div>
         </section>
+        
+        <!-- <section class="hero">
+            <img class="hero-bg" src="herobg.png" alt="Luxury footwear showcase">
+            <div class="hero-content">
+              <div>
+                <h1>Step Into Luxury.<br>Own Every Moment.</h1>
+                <p>Where timeless craftsmanship meets modern style.</p>
+                <a class="hero-btn" href="#shop">Shop Now</a>
+              </div>
+              <div class="hero-pagination">
+                <button class="hero-dot active">1</button>
+                <button class="hero-dot">2</button>
+                <button class="hero-dot">3</button>
+              </div>
+            </div>
+        </section> -->
+
         <div class="wrap trust">
             <div>Men · Women · Kids</div>
             <div>Easy order by WhatsApp</div>
@@ -1454,21 +1512,19 @@
 
     <script>
         const products = [
-            // First Men's Product contains 3 extra sub-images for testing multi-image thumbnails:
             {
                 category: "men", name: "Formal Derby shoe", priceNum: 790, price: "৳ 790", 
                 desc: "Sleek, polished formal dress shoes offering classic elegance and comfort.", 
                 img: "A01.png", 
+                images: ["A01.png", "A01_side.png", "A01_back.png", "A01_sole.png"],
                 tag: "A01", sizes: ["39", "40", "41", "42", "43", "44"], colors: ["Black"]
             },
-
             {
                 category: "men", name: "Leather Toe-Ring Slipper", priceNum: 699, price: "৳ 699",
                 desc: "Premium textured brown leather toe-ring slide designed for everyday comfort.",
                 images: ["A02.png"], 
                 tag: "A02", sizes: ["39", "40", "41", "42", "43", "44"], colors: ["Brown"]
             },
-
             {
                 category: "men", name: "White Buckle Slide Sandal", priceNum: 420, price: "৳ 420",
                 desc: "Stylish white slide with two buckles for light daily wear.", 
@@ -1476,7 +1532,6 @@
                 tag: "A08", sizes: ["32", "33", "34", "35", "36", "37", "38", "39", "40", "41", "42", "43"], 
                 colors: ["Black","White"]
             },
-
             {
                 category: "men", name: "Comfort Strap Sandal", priceNum: 550, price: "৳ 550", 
                 desc: "Very soft and lightweight brown sandal built for easy daily wear.", 
@@ -1484,7 +1539,6 @@
                 tag: "A13", sizes: ["40", "41", "42", "43"], 
                 colors: ["Brown"]
             },
-
             {
                 category: "men", name: "Leather Slide Slipper", priceNum: 620, price: "৳ 560", 
                 desc: "Smooth dark brown leather slipper designed for simple everyday comfort.", 
@@ -1492,7 +1546,6 @@
                 tag: "A07", sizes: ["39", "40", "41", "42"], 
                 colors: ["Brown", "Black"]
             },
-
             {
                 category: "men", name: "Three-Stripe Sport Slide Slipper", priceNum: 350, price: "৳ 350", 
                 desc: "Lightweight white slide with classic black stripes for casual comfort.", 
@@ -1500,7 +1553,6 @@
                 tag: "A12", sizes: ["40", "41", "42", "43"], 
                 colors: ["White"]
             },
-
             {
                 category: "men", name: "Woven Kolhapuri Slipper", priceNum: 550, price: "৳ 550", 
                 desc: "Stylish mustard yellow toe-ring slipper with black woven patterns.", 
@@ -1508,7 +1560,6 @@
                 tag: "A04", sizes: ["41", "42", "43", "44", "45", "46"], 
                 colors: ["Deep Yellow", "Soft Yellow"]
             },
-
             {
                 category: "men", name: "Textured Sport Strap Slide", priceNum: 320, price: "৳ 320", 
                 desc: "White slide featuring a dot-pattern strap for modern casual wear.", 
@@ -1516,7 +1567,6 @@
                 tag: "A09", sizes: ["28", "29", "30", "31", "32", "33", "34", "35", "36", "37", "38", "39", "40", "41", "42", "43"], 
                 colors: ["Black", "White"]
             },
-
             {
                 category: "men", name: "Black Leather Toe-Ring Slide", priceNum: 690, price: "৳ 690", 
                 desc: "Premium black leather toe-ring slipper with subtle check stitching.", 
@@ -1524,7 +1574,6 @@
                 tag: "A15", sizes: ["39", "40", "41", "42", "43", "44"], 
                 colors: ["Black"]
             },
-
             {
                 category: "men", name: "Slingback Sandal", priceNum: 650, price: "৳ 650", 
                 desc: "Textured brown leather sandal with supportive straps and a secure back strap.", 
@@ -1532,7 +1581,6 @@
                 tag: "A06", sizes: ["40", "41", "42", "43"], 
                 colors: ["Deep"]
             },
-
             {
                 category: "men", name: "Sport Comfort Slide", priceNum: 440, price: "৳ 440", 
                 desc: "Black and white sport slide with a soft cushioned sole.", 
@@ -1540,7 +1588,6 @@
                 tag: "A03", sizes: ["36", "37", "38", "39", "40", "41", "42", "43"], 
                 colors: ["Black", "White"]
             },
-
             {
                 category: "women", name: "City Step", priceNum: 480, price: "৳ 480", 
                 desc: "A clean everyday style that works with casual and modern outfits.", 
@@ -1548,7 +1595,6 @@
                 tag: "B04", sizes: ["36", "37", "38", "39", "40", "41"], 
                 colors: ["Black", "Golden"]
             },
-
             {
                 category: "women", name: "Street Muse", priceNum: 490, price: "৳ 490", 
                 desc: "A fashion-forward sneaker style with an easy everyday feel.", 
@@ -1556,7 +1602,6 @@
                 tag: "Popular", sizes: ["39", "40", "41", "42"], 
                 colors: ["Black"]
             },
-            
             {
                 category: "women", name: "Daily Glow", priceNum: 1650, price: "৳ 1,650", 
                 desc: "A versatile pair for casual outfits and daily movement.", 
@@ -1564,7 +1609,6 @@
                 tag: "New", sizes: ["36", "37", "38", "39"], 
                 colors: ["White", "Orange", "Black"]
             },
-
             {
                 category: "women", name: "Urban Ease", priceNum: 1900, price: "৳ 1,900", 
                 desc: "A modern casual sneaker made to fit into everyday wardrobes.", 
@@ -1572,7 +1616,6 @@
                 tag: "New", sizes: ["36", "37", "38", "39", "40"], 
                 colors: ["Red", "White", "Black"]
             },
-
             {
                 category: "women", name: "Classic Move", priceNum: 1800, price: "৳ 1,800", 
                 desc: "A minimal sneaker concept for relaxed everyday styling.", 
@@ -1580,7 +1623,6 @@
                 tag: "Everyday", sizes: ["36", "37", "38", "39", "40"], 
                 colors: ["White", "Grey", "Black"]
             },
-
             {
                 category: "children", name: "Mini Runner", priceNum: 990, price: "৳ 990", 
                 desc: "A fun everyday sneaker style for active kids.", 
@@ -1588,7 +1630,6 @@
                 tag: "C01", sizes: ["28", "29", "30", "31", "32"], 
                 colors: ["Black", "White"]
             },
-
             {
                 category: "children", name: "Tiny Street", priceNum: 250, price: "৳ 250", 
                 desc: "A sporty kids' style with a modern streetwear look.", 
@@ -1596,14 +1637,12 @@
                 tag: "C02", sizes: ["29", "30", "31", "32", "33"], 
                 colors: ["Orange", "Yellow"]
             },
-
             {
                 category: "children", name: "Happy Move", priceNum: 600, price: "৳ 600", 
                 desc: "A casual everyday style for little feet.", img: "C13.png", 
                 tag: "C13", sizes: ["27", "28", "29", "30", "31"], 
                 colors: ["Black"]
             }, 
-
             {
                 category: "children", name: "Happy Move", priceNum: 390, price: "৳ 390", 
                 desc: "A casual everyday style for little feet.", 
@@ -1611,7 +1650,6 @@
                 tag: "C08", sizes: ["27", "28", "29", "30", "31"], 
                 colors: ["Brown", "White"]
             },
-
             {
                 category: "children", name: "Play Step", priceNum: 790, price: "৳ 790", 
                 desc: "An easy-to-wear casual pair for everyday play.", 
@@ -1619,7 +1657,6 @@
                 tag: "C07", sizes: ["28", "29", "30", "31", "32"], 
                 colors: ["Black"]
             },
-
             {
                 category: "children", name: "Little Classic", priceNum: 750, price: "৳ 750", 
                 desc: "A clean and easy everyday shoe for kids.", 
@@ -1627,7 +1664,6 @@
                 tag: "C04", sizes: ["28", "29", "30", "31", "32"], 
                 colors: ["White"]
             },
-
             {
                 category: "children", name: "Junior Flex", priceNum: 450, price: "৳ 450", 
                 desc: "A playful casual sneaker concept for active days.", 
@@ -1636,6 +1672,72 @@
                 colors: ["Black", "White"]
             },
         ];
+
+        const heroSlides = [
+    {
+        bg: "herobg.png",
+        title: "Men's Collection.<br>Crafted For Elegance.",
+        desc: "Explore men's sneakers, formal shoes, and everyday sandals.",
+        link: "#men"
+    },
+    {
+        bg: "herobg2.png",
+        title: "Women's Collection.<br>Style Every Step.",
+        desc: "Comfortable and stylish footwear for daily wear and modern looks.",
+        link: "#women"
+    },
+    {
+        bg: "herobg3.png",
+        title: "Kid's Collection.<br>Fun & Playful Feet.",
+        desc: "Fun, easy-to-wear styles built for active kids.",
+        link: "#children"
+    }
+];
+
+        let currentSlide = 0;
+        const slideIntervalTime = 4000; // Changes every 4 seconds (4000ms)
+
+        function showSlide(index) {
+            currentSlide = index;
+            const slide = heroSlides[currentSlide];
+
+            // Update image, title, description, and button link
+            document.getElementById("heroBg").src = slide.bg;
+            document.getElementById("heroTitle").innerHTML = slide.title;
+            document.getElementById("heroDesc").textContent = slide.desc;
+            document.getElementById("heroLink").href = slide.link;
+
+            // Update active dot styling
+            document.querySelectorAll(".hero-dot").forEach((dot, i) => {
+                if (i === currentSlide) {
+                    dot.classList.add("active");
+                } else {
+                    dot.classList.remove("active");
+                }
+            });
+        }
+
+        // Enable clicking on pagination dots (1, 2, 3)
+        document.getElementById("heroDots").addEventListener("click", e => {
+            const dot = e.target.closest(".hero-dot");
+            if (!dot) return;
+            showSlide(Number(dot.dataset.slide));
+            resetTimer(); // Restarts the automatic timer when clicked manually
+        });
+
+        // Setup automatic slideshow timer
+        let slideTimer = setInterval(() => {
+            currentSlide = (currentSlide + 1) % heroSlides.length;
+            showSlide(currentSlide);
+        }, slideIntervalTime);
+
+        function resetTimer() {
+            clearInterval(slideTimer);
+            slideTimer = setInterval(() => {
+                currentSlide = (currentSlide + 1) % heroSlides.length;
+                showSlide(currentSlide);
+            }, slideIntervalTime);
+        }
 
         const WHATSAPP_NUMBER = "8801799208582"; 
         let selectedProduct = null, selectedColor = "", selectedSize = ""; 
@@ -1669,7 +1771,7 @@
                 const el = document.createElement("article"); 
                 el.className = "product" + (index >= 4 ? " hidden-product" : ""); 
                 const displayImg = Array.isArray(p.images) ? p.images[0] : p.img;
-                el.innerHTML = `<div class="product-photo"><img src="${displayImg}" alt="${p.name} footwear product" loading="lazy"><span class="tag">${p.tag}</span></div><div class="product-info"><h4>${p.name}</h4><div class="price">${p.price}</div><small> </small><button class="outline" data-index="${products.indexOf(p)}">View details</button></div>`; 
+                el.innerHTML = `<div class="product-photo"><img src="${displayImg}" alt="${p.name} footwear product" loading="lazy"><span class="tag">${p.tag}</span></div><div class="product-info"><h4>${p.name}</h4><div class="price">${p.price}</div><small class="truncate-desc">${p.desc}</small><button class="outline" data-index="${products.indexOf(p)}">View details</button></div>`; 
                 grid.appendChild(el);
             });
         }
