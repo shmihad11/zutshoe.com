@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zutshoe | Spin & Win Discounts</title>
+    <meta name="description" content="Spin the Zutshoe lucky wheel to win exclusive discounts from 5% to 15% off your order!">
+    <meta name="theme-color" content="#fb4600">
+    <style>
+        :root {
+            --ink: #111;
+            --muted: #707070;
+            --line: #e9e9e9;
+            --paper: #fff;
+            --soft: #f6f5f2;
+            --accent: #f04400;
+            --navy: #071d48;
+            --max: 1280px;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Inter, Arial, Helvetica, sans-serif;
+            background: #110d2b;
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        header {
+            width: 100%;
+            background: #0a071c;
+            padding: 15px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .brand-logo {
+            height: 45px;
+            object-fit: contain;
+        }
+
+        .back-btn {
+            color: #fff;
+            text-decoration: none;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 8px 16px;
+            border-radius: 20px;
+            transition: .2s;
+        }
+
+        .back-btn:hover {
+            background: var(--accent);
+            border-color: var(--accent);
+        }
+
+        .container {
+            width: min(100%, 500px);
+            padding: 30px 20px;
+            text-align: center;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        h1 {
+            font-size: clamp(28px, 6vw, 42px);
+            margin: 0 0 10px;
+            letter-spacing: -.03em;
+            background: linear-gradient(135deg, #fff 0%, #ffd000 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        p {
+            color: #b0a8d9;
+            font-size: 14px;
+            line-height: 1.6;
+            margin: 0 0 25px;
+            max-width: 380px;
+        }
+
+        .wheel-box {
+            position: relative;
+            width: 350px;
+            height: 350px;
+            margin: 10px auto;
+        }
+
+        @media(max-width:380px) {
+            .wheel-box {
+                width: 300px;
+                height: 300px;
+            }
+        }
+
+        canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .spin-btn {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: #071d48;
+            color: #fff;
+            border: 4px solid #fff;
+            font-weight: 900;
+            font-size: 16px;
+            letter-spacing: .08em;
+            cursor: pointer;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+            transition: transform .2s, background-color .2s;
+            z-index: 10;
+        }
+
+        .spin-btn:hover:not(:disabled) {
+            transform: translate(-50%, -50%) scale(1.08);
+            background: var(--accent);
+        }
+
+        .spin-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        .pointer {
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 18px solid transparent;
+            border-right: 18px solid transparent;
+            border-top: 32px solid #ffb700;
+            z-index: 12;
+            filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.4));
+        }
+
+        .result-card {
+            margin-top: 25px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 20px;
+            border-radius: 12px;
+            width: 100%;
+            display: none;
+        }
+
+        .result-card.show {
+            display: block;
+        }
+
+        .code-badge {
+            background: var(--accent);
+            color: #fff;
+            padding: 10px 18px;
+            border-radius: 6px;
+            font-weight: 900;
+            font-size: 20px;
+            letter-spacing: 2px;
+            display: inline-block;
+            margin: 10px 0;
+        }
+
+        .claim-btn {
+            display: block;
+            width: 100%;
+            background: #25D366;
+            color: #fff;
+            text-decoration: none;
+            padding: 14px;
+            border-radius: 8px;
+            font-weight: 800;
+            font-size: 13px;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            margin-top: 15px;
+            transition: .2s;
+        }
+
+        .claim-btn:hover {
+            background: #1eb956;
+        }
+
+        .verify-note {
+            font-size: 11px;
+            color: #a8a0cb;
+            margin-top: 8px;
+            line-height: 1.4;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <a href="index.html" aria-label="Zutshoe Home">
+            <img class="brand-logo" src="logo.png" alt="Zutshoe Logo">
+        </a>
+        <a class="back-btn" href="index.html">← Back to Shop</a>
+    </header>
+
+    <div class="container">
+        <h1>Spin & Win!</h1>
+        <p>Spin the wheel to unlock an exclusive discount code from 5% to 15% OFF for your next order.</p>
+
+        <div class="wheel-box">
+            <div class="pointer"></div>
+            <canvas id="wheelCanvas" width="400" height="400"></canvas>
+            <button class="spin-btn" id="spinBtn">SPIN</button>
+        </div>
+
+        <div class="result-card" id="resultCard">
+            <h3 style="margin:0 0 5px; font-size:18px;">Congratulations! 🎉</h3>
+            <p style="margin:0 0 10px; color:#ddd;" id="resultText"></p>
+            <div>Your Official Promo Key:</div>
+            <div class="code-badge" id="codeBadge">ZUT-X00000</div>
+            <div class="verify-note">🔒 This encrypted promo key is registered for store order verification.</div>
+            <a class="claim-btn" id="claimBtn" href="#" target="_blank">Send & Claim on WhatsApp ↗</a>
+        </div>
+    </div>
+
+    <script>
+        const WHATSAPP_NUMBER = "8801799208582";
+        
+        // Secret salt key used for encryption matching
+        const SECRET_SALT = 38291;
+        
+        const sectors = [
+            { label: "5% OFF", color: "#e91e63", percent: 5, value: "5% OFF" },
+            { label: "12% OFF", color: "#9c27b0", percent: 12, value: "12% OFF" },
+            { label: "8% OFF", color: "#ff9800", percent: 8, value: "8% OFF" },
+            { label: "15% OFF", color: "#f44336", percent: 15, value: "15% OFF" },
+            { label: "10% OFF", color: "#e91e63", percent: 10, value: "10% OFF" },
+            { label: "5% OFF", color: "#4caf50", percent: 5, value: "5% OFF" },
+            { label: "12% OFF", color: "#ffeb3b", percent: 12, value: "12% OFF" },
+            { label: "10% OFF", color: "#00bcd4", percent: 10, value: "10% OFF" }
+        ];
+
+        const canvas = document.getElementById("wheelCanvas");
+        const ctx = canvas.getContext("2d");
+        const spinBtn = document.getElementById("spinBtn");
+        const resultCard = document.getElementById("resultCard");
+        const resultText = document.getElementById("resultText");
+        const codeBadge = document.getElementById("codeBadge");
+        const claimBtn = document.getElementById("claimBtn");
+
+        const numSectors = sectors.length;
+        const arc = (2 * Math.PI) / numSectors;
+        let currentAngle = 0;
+        let isSpinning = false;
+
+        function drawWheel() {
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            const outerRadius = 185;
+            const innerRadius = 162;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, outerRadius, 0, 2 * Math.PI);
+            ctx.fillStyle = "#071d48";
+            ctx.fill();
+
+            for (let i = 0; i < 16; i++) {
+                const dotAngle = (i * (2 * Math.PI / 16));
+                const dotX = centerX + (outerRadius - 11) * Math.cos(dotAngle);
+                const dotY = centerY + (outerRadius - 11) * Math.sin(dotAngle);
+
+                ctx.beginPath();
+                ctx.arc(dotX, dotY, 5, 0, 2 * Math.PI);
+                ctx.fillStyle = "#ffeb3b";
+                ctx.fill();
+            }
+
+            for (let i = 0; i < numSectors; i++) {
+                const angle = currentAngle + i * arc;
+
+                ctx.beginPath();
+                ctx.moveTo(centerX, centerY);
+                ctx.arc(centerX, centerY, innerRadius, angle, angle + arc);
+                ctx.fillStyle = sectors[i].color;
+                ctx.fill();
+
+                ctx.save();
+                ctx.translate(centerX, centerY);
+                ctx.rotate(angle + arc / 2);
+                ctx.textAlign = "right";
+                ctx.fillStyle = (sectors[i].color === "#ffeb3b") ? "#111" : "#fff";
+                ctx.font = "900 18px Inter, Arial, sans-serif";
+                ctx.fillText(sectors[i].label, innerRadius - 16, 6);
+                ctx.restore();
+            }
+        }
+
+        drawWheel();
+
+        // Check if user has already spun
+        const savedOffer = localStorage.getItem("zutshoe_spin_offer");
+        const savedCode = localStorage.getItem("zutshoe_spin_code");
+
+        if (savedOffer && savedCode) {
+            spinBtn.disabled = true;
+            spinBtn.textContent = "DONE";
+            showResult(savedOffer, savedCode);
+        }
+
+        function showResult(offer, code) {
+            resultText.textContent = `You won ${offer} on your next order!`;
+            codeBadge.textContent = code;
+            
+            const message = `ZUTSHOE DISCOUNT CLAIM\n\nI spun the lucky wheel and won ${offer}!\nPromo Key: ${code}\n\nPlease apply this code to my order.`;
+            claimBtn.href = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+            resultCard.classList.add("show");
+        }
+
+        // Encryption function: Generates tough-looking hex keys
+        function generateCrypticCode(percent) {
+            const randomSeed = Math.floor(1000 + Math.random() * 9000);
+            const checksum = (randomSeed * percent + SECRET_SALT) % 16;
+            const hexSum = checksum.toString(16).toUpperCase();
+            
+            // Format: ZUT-[Percent Hex Prefix][RandomDigits][ChecksumHex]
+            return `ZUT-${percent.toString(16).toUpperCase()}${randomSeed}${hexSum}`;
+        }
+
+        spinBtn.addEventListener("click", () => {
+            if (isSpinning || localStorage.getItem("zutshoe_spin_offer")) return;
+
+            isSpinning = true;
+            spinBtn.disabled = true;
+
+            const randomIndex = Math.floor(Math.random() * numSectors);
+            const winningSector = sectors[randomIndex];
+
+            const extraRounds = 5 + Math.floor(Math.random() * 3);
+            const segmentCenter = randomIndex * arc + (arc / 2);
+            const targetAngle = (extraRounds * 2 * Math.PI) + (1.5 * Math.PI - segmentCenter);
+
+            let startTime = null;
+            const duration = 4500;
+
+            function animate(timestamp) {
+                if (!startTime) startTime = timestamp;
+                const progress = Math.min((timestamp - startTime) / duration, 1);
+
+                const easeOut = 1 - Math.pow(1 - progress, 3);
+                currentAngle = easeOut * targetAngle;
+
+                drawWheel();
+
+                if (progress < 1) {
+                    requestAnimationFrame(animate);
+                } else {
+                    isSpinning = false;
+                    spinBtn.textContent = "DONE";
+
+                    // Generate encrypted key
+                    const encryptedCode = generateCrypticCode(winningSector.percent);
+
+                    localStorage.setItem("zutshoe_spin_offer", winningSector.value);
+                    localStorage.setItem("zutshoe_spin_code", encryptedCode);
+
+                    showResult(winningSector.value, encryptedCode);
+                }
+            }
+
+            requestAnimationFrame(animate);
+        });
+    </script>
+</body>
+
+</html>
