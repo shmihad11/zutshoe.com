@@ -448,10 +448,10 @@
             <div class="product-grid">
                 <!-- Product Card 1 -->
                 <div class="product-card">
-                    <img src="men.png" alt="Zutshoe Runner">
+                    <img src="men.png" alt="Zutshoe Stealth Runner">
                     <div class="product-title">Zutshoe Stealth Runner</div>
                     <div class="product-price">৳ 3,250</div>
-                    <button class="ar-btn" onclick="openARModal('Zutshoe Stealth Runner', 'models/shoe.gltf')">
+                    <button class="ar-btn" onclick="openARModal('Zutshoe Stealth Runner', 'https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Assets/main/Models/MaterialsVariantsShoe/glTF-Binary/MaterialsVariantsShoe.glb')">
                         🕶️ View in 3D / AR
                     </button>
                 </div>
@@ -461,7 +461,7 @@
                     <img src="women.png" alt="Zutshoe Urban Pro">
                     <div class="product-title">Zutshoe Urban Pro</div>
                     <div class="product-price">৳ 2,990</div>
-                    <button class="ar-btn" onclick="openARModal('Zutshoe Urban Pro', 'models/shoe.gltf')">
+                    <button class="ar-btn" onclick="openARModal('Zutshoe Urban Pro', 'https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Assets/main/Models/MaterialsVariantsShoe/glTF-Binary/MaterialsVariantsShoe.glb')">
                         🕶️ View in 3D / AR
                     </button>
                 </div>
@@ -484,10 +484,12 @@
                 alt="3D Shoe Model" 
                 ar 
                 ar-modes="webxr scene-viewer quick-look" 
+                ar-scale="auto"
                 camera-controls 
                 auto-rotate 
                 shadow-intensity="1.5"
-                shadow-softness="1">
+                shadow-softness="1"
+                bounds="tight">
                 <button slot="ar-button" class="ar-view-in-space-btn">
                     📱 View in Your Room (AR)
                 </button>
