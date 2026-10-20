@@ -4,20 +4,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Zutshoe | 3D & WebAR Virtual Try-On</title>
-    <meta name="description" content="Experience Zutshoe footwear in 3D and Augmented Reality directly in your room!">
-    <meta name="theme-color" content="#f04400">
+    <title>Zutshoe | Premium Footwear Collection</title>
+    <meta name="description" content="Discover premium footwear collections for Men, Women, and Kids at Zutshoe.">
+    <meta name="theme-color" content="#071d48">
 
-    <!-- Google <model-viewer> WebAR Library -->
+    <!-- Google WebAR Model Viewer Library -->
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
 
     <style>
         :root {
+            --ink: #111111;
+            --muted: #666666;
+            --line: #e9e9e9;
+            --paper: #ffffff;
+            --soft: #f6f5f2;
             --accent: #f04400;
             --navy: #071d48;
-            --light-bg: #f8f9fa;
-            --dark-bg: #0a071c;
-            --card-border: rgba(0, 0, 0, 0.08);
+            --max: 1280px;
         }
 
         * {
@@ -27,23 +30,23 @@
         }
 
         body {
-            font-family: Inter, Arial, sans-serif;
-            background: #f4f5f8;
-            color: #111;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
+            font-family: Inter, Arial, Helvetica, sans-serif;
+            background-color: var(--paper);
+            color: var(--ink);
+            line-height: 1.5;
         }
 
-        /* Header */
+        /* --- HEADER & NAVIGATION --- */
         header {
             width: 100%;
-            background: var(--dark-bg);
-            padding: 16px 24px;
+            background: var(--navy);
+            padding: 15px 24px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
 
         .brand-logo {
@@ -51,294 +54,486 @@
             object-fit: contain;
         }
 
-        .back-btn {
-            color: #fff;
+        .nav-links {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: #ffffff;
             text-decoration: none;
-            font-size: 12px;
-            font-weight: 700;
-            letter-spacing: .08em;
-            text-transform: uppercase;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            font-size: 14px;
+            font-weight: 600;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover {
+            color: var(--accent);
+        }
+
+        .spin-offer-btn {
+            background: var(--accent);
+            color: #ffffff !important;
             padding: 8px 16px;
             border-radius: 20px;
-            transition: .2s ease;
+            font-weight: 700 !important;
         }
 
-        .back-btn:hover {
-            background: var(--accent);
-            border-color: var(--accent);
-        }
-
-        /* Container */
-        .container {
-            width: min(100%, 900px);
-            margin: 30px auto;
-            padding: 0 20px;
-            flex-grow: 1;
-        }
-
-        .page-head {
-            text-align: center;
-            margin-bottom: 25px;
-        }
-
-        .page-head h1 {
-            font-size: clamp(26px, 5vw, 36px);
-            font-weight: 800;
-            color: var(--navy);
-            letter-spacing: -0.02em;
-        }
-
-        .page-head p {
-            color: #666;
-            font-size: 15px;
-            margin-top: 6px;
-        }
-
-        /* 3D & AR Viewer Box */
-        .ar-card {
-            background: #ffffff;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
-            border: 1px solid var(--card-border);
+        /* --- HERO SECTION WITH MULTI-LAYERED LEFT-TO-RIGHT GRADIENT --- */
+        .hero {
+            position: relative;
+            min-height: 80vh;
+            background: url('hero-banner.jpg') center/cover no-repeat;
+            display: flex;
+            align-items: center;
+            padding: 40px 24px;
             overflow: hidden;
+        }
+
+        .hero::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            /* Multi-layered left-to-right gradient overlay */
+            background: linear-gradient(90deg,
+                    rgba(7, 29, 72, 0.92) 0%,
+                    rgba(0, 0, 0, 0.70) 25%,
+                    rgba(0, 0, 0, 0.25) 55%,
+                    rgba(0, 0, 0, 0) 85%);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            max-width: 600px;
+            color: #ffffff;
+            margin-left: max(0px, calc((100vw - var(--max)) / 2));
+        }
+
+        .hero h1 {
+            font-size: clamp(36px, 5vw, 60px);
+            font-weight: 900;
+            line-height: 1.1;
+            margin-bottom: 16px;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .hero p {
+            font-size: 18px;
+            margin-bottom: 24px;
+            color: #e0e0e0;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+        }
+
+        .hero-btn {
+            display: inline-block;
+            background: var(--accent);
+            color: #ffffff;
+            padding: 14px 28px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            transition: transform 0.2s, background 0.2s;
+        }
+
+        .hero-btn:hover {
+            background: #d03a00;
+            transform: translateY(-2px);
+        }
+
+        /* --- CATEGORIES SECTION --- */
+        #categories {
+            padding: 60px 24px;
+            background: var(--paper);
+        }
+
+        .wrap {
+            max-width: var(--max);
+            margin: 0 auto;
+        }
+
+        .section-head {
+            margin-bottom: 40px;
+        }
+
+        .eyebrow {
+            text-transform: uppercase;
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 0.1em;
+            color: var(--accent);
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .section-head h2 {
+            font-size: 32px;
+            font-weight: 900;
+            color: var(--ink);
+        }
+
+        .section-head p {
+            color: var(--muted);
+            font-size: 15px;
+            margin-top: 4px;
+        }
+
+        .categories {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+        }
+
+        /* Category Card Container */
+        .category {
+            display: flex;
+            flex-direction: column;
+            text-decoration: none;
+            border-radius: 16px;
+            overflow: hidden;
+            background: #ffffff;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .category:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Image inside category card */
+        .category img {
+            width: 100%;
+            height: 380px;
+            object-fit: cover;
+            display: block;
+        }
+
+        /* Text Box OUTSIDE (below) the image */
+        .category-label {
+            position: static;
+            background: var(--soft);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            text-align: center;
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--ink);
+        }
+
+        /* Sub-text: "Explore styles ↗" */
+        .category-label span {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--muted);
+            letter-spacing: 0.02em;
+        }
+
+        /* --- PRODUCT GRID & WEBAR BUTTONS --- */
+        #products {
+            padding: 60px 24px;
+            background: var(--soft);
+        }
+
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 24px;
+        }
+
+        .product-card {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 16px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            position: relative;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
         }
 
-        .viewer-box {
+        .product-card img {
             width: 100%;
-            height: 450px;
-            background: radial-gradient(circle at center, #ffffff 0%, #f0f0f5 100%);
+            height: 220px;
+            object-fit: contain;
+            margin-bottom: 12px;
+        }
+
+        .product-title {
+            font-size: 16px;
+            font-weight: 800;
+            margin-bottom: 4px;
+        }
+
+        .product-price {
+            font-size: 15px;
+            color: var(--accent);
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        /* AR Interactive Badge on Shoe Cards */
+        .ar-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--navy);
+            color: #ffffff;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.2s ease, transform 0.2s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .ar-btn:hover {
+            background: var(--accent);
+            transform: scale(1.03);
+        }
+
+        /* --- WEBAR MODAL STYLES --- */
+        .ar-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .ar-modal.active {
+            display: flex;
+        }
+
+        .ar-modal-content {
             position: relative;
+            width: min(100%, 550px);
+            height: 80vh;
+            background: #ffffff;
+            border-radius: 20px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .ar-modal-header {
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #eeeeee;
+            background: #fafafa;
+        }
+
+        .ar-modal-header h3 {
+            margin: 0;
+            font-size: 18px;
+            color: var(--ink);
+        }
+
+        .ar-close-btn {
+            background: none;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            color: var(--muted);
+            line-height: 1;
         }
 
         model-viewer {
             width: 100%;
             height: 100%;
+            background-color: #f8f9fa;
             --poster-color: transparent;
         }
 
-        /* AR Trigger Button */
-        .ar-btn {
+        .ar-view-in-space-btn {
             position: absolute;
             bottom: 20px;
             left: 50%;
             transform: translateX(-50%);
-            background: var(--navy);
+            background: var(--accent);
             color: #ffffff;
-            font-weight: 800;
-            font-size: 13px;
-            letter-spacing: .05em;
-            text-transform: uppercase;
             padding: 12px 24px;
             border-radius: 30px;
-            border: 2px solid #ffffff;
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: transform .2s ease, background-color .2s ease;
-            z-index: 10;
-        }
-
-        .ar-btn:hover {
-            background: var(--accent);
-            transform: translateX(-50%) scale(1.05);
-        }
-
-        /* Controls Panel */
-        .controls-panel {
-            width: 100%;
-            padding: 24px;
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-between;
-            align-items: center;
-            gap: 20px;
-            background: #ffffff;
-            border-top: 1px solid var(--card-border);
-        }
-
-        .color-selector {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .color-selector span {
-            font-size: 14px;
-            font-weight: 700;
-            color: #444;
-        }
-
-        .swatch-group {
-            display: flex;
-            gap: 10px;
-        }
-
-        .swatch {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            border: 2px solid #fff;
-            box-shadow: 0 0 0 2px #ddd;
-            cursor: pointer;
-            transition: transform .2s ease, box-shadow .2s ease;
-        }
-
-        .swatch:hover, .swatch.active {
-            transform: scale(1.15);
-            box-shadow: 0 0 0 2px var(--accent);
-        }
-
-        .action-group {
-            display: flex;
-            gap: 12px;
-        }
-
-        .buy-btn {
-            background: var(--accent);
-            color: #fff;
-            text-decoration: none;
-            padding: 12px 24px;
-            border-radius: 8px;
             font-weight: 800;
+            font-size: 14px;
+            border: none;
+            box-shadow: 0 4px 15px rgba(240, 68, 0, 0.4);
+            cursor: pointer;
+        }
+
+        footer {
+            background: var(--navy);
+            color: #ffffff;
+            text-align: center;
+            padding: 24px;
             font-size: 13px;
-            letter-spacing: .05em;
-            text-transform: uppercase;
-            transition: background-color .2s ease;
-        }
-
-        .buy-btn:hover {
-            background: #d03b00;
-        }
-
-        /* AR Instructions Note */
-        .ar-instructions {
-            margin-top: 20px;
-            background: #eef2f7;
-            padding: 16px 20px;
-            border-radius: 12px;
-            font-size: 13px;
-            color: #555;
-            line-height: 1.5;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        @media(max-width: 600px) {
-            .viewer-box {
-                height: 360px;
-            }
-            .controls-panel {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            .color-selector {
-                justify-content: space-between;
-            }
-            .buy-btn {
-                text-align: center;
-            }
+            color: #a8a0cb;
         }
     </style>
 </head>
 
 <body>
+
+    <!-- NAVBAR -->
     <header>
         <a href="index.html" aria-label="Zutshoe Home">
             <img class="brand-logo" src="logo.png" alt="Zutshoe Logo">
         </a>
-        <a class="back-btn" href="index.html">← Back to Shop</a>
+        <nav class="nav-links">
+            <a href="#categories">Categories</a>
+            <a href="#products">Products</a>
+            <a href="spin.html" class="spin-offer-btn">🎁 Spin & Win</a>
+        </nav>
     </header>
 
-    <div class="container">
-        <div class="page-head">
-            <h1>Virtual AR Try-On</h1>
-            <p>Rotate in 3D or tap the AR button to place this shoe in your room using your phone camera!</p>
+    <!-- HERO SECTION -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Step Into Your Next Level Style</h1>
+            <p>Explore exclusive, high-comfort sneakers and formal footwear designed for every occasion.</p>
+            <a href="#products" class="hero-btn">Shop Collection</a>
         </div>
+    </section>
 
-        <div class="ar-card">
-            <div class="viewer-box">
-                <!-- 3D & WebAR Model Viewer Component -->
-                <model-viewer 
-                    id="shoeViewer"
-                    src="https://modelviewer.dev/shared-assets/models/MaterialsVariantsShoe/MaterialsVariantsShoe.gltf" 
-                    ios-src="https://modelviewer.dev/shared-assets/models/MaterialsVariantsShoe/MaterialsVariantsShoe.usdz" 
-                    alt="Zutshoe 3D Footwear Model" 
-                    ar 
-                    ar-modes="scene-viewer quick-look webxr" 
-                    camera-controls 
-                    auto-rotate 
-                    shadow-intensity="1.5"
-                    shadow-softness="0.8"
-                    loading="lazy">
+    <!-- SHOP BY CATEGORY -->
+    <section id="categories">
+        <div class="wrap">
+            <div class="section-head">
+                <div>
+                    <span class="eyebrow">Find your fit</span>
+                    <h2>Shop by category</h2>
+                </div>
+                <p>Explore footwear collections for men, women and kids.</p>
+            </div>
+            <div class="categories">
+                <a class="category" href="#men">
+                    <img src="men.png" alt="Men's footwear">
+                    <div class="category-label">Men's<span>Explore styles ↗</span></div>
+                </a>
+                <a class="category" href="#women">
+                    <img src="women.png" alt="Women's footwear">
+                    <div class="category-label">Women's<span>Explore styles ↗</span></div>
+                </a>
+                <a class="category" href="#children">
+                    <img src="kid.png" alt="Kids' footwear">
+                    <div class="category-label">Kid's<span>Explore styles ↗</span></div>
+                </a>
+            </div>
+        </div>
+    </section>
 
-                    <!-- Custom AR Trigger Button -->
-                    <button slot="ar-button" class="ar-btn">
-                        <span>📱 View in Your Room (AR)</span>
+    <!-- PRODUCTS WITH WEBAR TRY-ON -->
+    <section id="products">
+        <div class="wrap">
+            <div class="section-head">
+                <span class="eyebrow">Interactive 3D Experience</span>
+                <h2>Featured Products</h2>
+                <p>Click "View in 3D / AR" to place the shoe right inside your room using your phone camera!</p>
+            </div>
+            <div class="product-grid">
+                <!-- Product Card 1 -->
+                <div class="product-card">
+                    <img src="men.png" alt="Zutshoe Runner">
+                    <div class="product-title">Zutshoe Stealth Runner</div>
+                    <div class="product-price">৳ 3,250</div>
+                    <button class="ar-btn" onclick="openARModal('Zutshoe Stealth Runner', 'models/shoe.gltf')">
+                        🕶️ View in 3D / AR
                     </button>
-                </model-viewer>
-            </div>
-
-            <div class="controls-panel">
-                <div class="color-selector">
-                    <span>Variant:</span>
-                    <div class="swatch-group">
-                        <div class="swatch active" style="background: #e63946;" data-variant="red" title="Red"></div>
-                        <div class="swatch" style="background: #1d3557;" data-variant="navy" title="Navy"></div>
-                        <div class="swatch" style="background: #2a9d8f;" data-variant="teal" title="Teal"></div>
-                    </div>
                 </div>
 
-                <div class="action-group">
-                    <a href="index.html#order" class="buy-btn">Order This Shoe ↗</a>
+                <!-- Product Card 2 -->
+                <div class="product-card">
+                    <img src="women.png" alt="Zutshoe Urban Pro">
+                    <div class="product-title">Zutshoe Urban Pro</div>
+                    <div class="product-price">৳ 2,990</div>
+                    <button class="ar-btn" onclick="openARModal('Zutshoe Urban Pro', 'models/shoe.gltf')">
+                        🕶️ View in 3D / AR
+                    </button>
                 </div>
             </div>
         </div>
+    </section>
 
-        <div class="ar-instructions">
-            <span style="font-size:24px;">💡</span>
-            <div>
-                <strong>How WebAR Works:</strong> On mobile devices (iOS Safari or Android Chrome), tap 
-                <strong>"View in Your Room"</strong> to activate your camera and see the exact size and style of the shoe placed on your floor!
+    <!-- WEBAR 3D PREVIEW MODAL -->
+    <div class="ar-modal" id="arModal">
+        <div class="ar-modal-content">
+            <div class="ar-modal-header">
+                <h3 id="arModalTitle">View in 3D & AR</h3>
+                <button class="ar-close-btn" onclick="closeARModal()">&times;</button>
             </div>
+
+            <model-viewer 
+                id="shoeViewer" 
+                src="" 
+                ios-src="" 
+                alt="3D Shoe Model" 
+                ar 
+                ar-modes="webxr scene-viewer quick-look" 
+                camera-controls 
+                auto-rotate 
+                shadow-intensity="1.5"
+                shadow-softness="1">
+                <button slot="ar-button" class="ar-view-in-space-btn">
+                    📱 View in Your Room (AR)
+                </button>
+            </model-viewer>
         </div>
     </div>
 
+    <!-- FOOTER -->
+    <footer>
+        <p>© 2026 Zutshoe Store. All rights reserved. Hazaribagh, Dhaka.</p>
+    </footer>
+
+    <!-- WEBAR JAVASCRIPT LOGIC -->
     <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            const modelViewer = document.getElementById("shoeViewer");
-            const swatches = document.querySelectorAll(".swatch");
+        function openARModal(productName, gltfPath, usdzPath = '') {
+            const modal = document.getElementById('arModal');
+            const viewer = document.getElementById('shoeViewer');
+            const title = document.getElementById('arModalTitle');
 
-            // Handle material variant updates if available in the 3D model
-            swatches.forEach(swatch => {
-                swatch.addEventListener("click", (e) => {
-                    swatches.forEach(s => s.classList.remove("active"));
-                    swatch.classList.add("active");
+            title.textContent = productName;
+            viewer.setAttribute('src', gltfPath);
 
-                    const variantName = swatch.getAttribute("data-variant");
-                    
-                    // If the GLTF model contains named material variants:
-                    if (modelViewer.availableVariants && modelViewer.availableVariants.includes(variantName)) {
-                        modelViewer.variantName = variantName;
-                    }
-                });
-            });
+            if (usdzPath) {
+                viewer.setAttribute('ios-src', usdzPath);
+            } else {
+                viewer.removeAttribute('ios-src');
+            }
 
-            // Log AR status errors gracefully
-            modelViewer.addEventListener("ar-status", (event) => {
-                if (event.detail.status === "failed") {
-                    alert("AR is not supported on this browser or device. Try opening on mobile Chrome or Safari!");
-                }
-            });
+            modal.classList.add('active');
+        }
+
+        function closeARModal() {
+            const modal = document.getElementById('arModal');
+            const viewer = document.getElementById('shoeViewer');
+            modal.classList.remove('active');
+            viewer.setAttribute('src', '');
+        }
+
+        window.addEventListener('click', (e) => {
+            const modal = document.getElementById('arModal');
+            if (e.target === modal) {
+                closeARModal();
+            }
         });
     </script>
+
 </body>
 
 </html>
