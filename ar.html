@@ -2079,6 +2079,13 @@
         });
     </script>
 
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.164.1/build/three.module.js"
+  }
+}
+</script>
 <script type="module">
 (() => {
   const modal = document.getElementById('arTryOnModal');
@@ -2133,14 +2140,20 @@
   async function startCamera(){
     if(busy) return; busy=true; startBtn.disabled=true;
     try{
-      await setup3D(); await setupTracker();
+      if(!window.isSecureContext) throw new Error('This page is not secure. Open the website using HTTPS.');
+      if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) throw new Error('This browser does not provide camera access. Open the site in Chrome or Safari over HTTPS.');
       if(stream) stream.getTracks().forEach(t=>t.stop());
       stream=await navigator.mediaDevices.getUserMedia({audio:false,video:{facingMode:{ideal:facing},width:{ideal:1280},height:{ideal:720}}});
-      video.srcObject=stream; await video.play(); running=true; guide.classList.add('hidden'); status('Camera on · show both feet in frame');
+      video.srcObject=stream; await video.play(); guide.classList.add('hidden'); status('Camera ready · loading 3D shoe and foot tracking…');
+      await setup3D(); await setupTracker();
+      running=true; status('Camera on · show both feet in frame');
       startBtn.textContent='Camera running'; lastVideoTime=-1; loop();
     }catch(e){
-      console.error(e); status('Could not start: '+(e.name==='NotAllowedError'?'camera permission denied':e.message||'camera/model error'));
-      guide.classList.remove('hidden'); guide.innerHTML='<strong>Could not start AR</strong>Allow camera access, use HTTPS, and check your internet connection so the 3D and tracking models can load.<br><br>'+String(e.message||e).replace(/[<>]/g,'');
+      console.error('ZUTSHOE AR startup error:',e);
+      const reason = e.name==='NotAllowedError' ? 'Camera permission was denied. Allow camera access in your browser settings and try again.' : e.name==='NotFoundError' ? 'No camera was found on this device.' : e.name==='NotReadableError' ? 'The camera is busy in another app. Close other camera apps and try again.' : (e.message || 'A camera, 3D model, or tracking library failed to load.');
+      status('Could not start AR: '+reason);
+      guide.classList.remove('hidden'); guide.innerHTML='<strong>Could not start AR</strong>'+reason+'<br><br>Check HTTPS, allow camera permission, keep internet on, and confirm sample-sneaker.glb is uploaded beside index.html.';
+      if(stream){stream.getTracks().forEach(t=>t.stop());stream=null;} video.srcObject=null;
     }finally{busy=false;startBtn.disabled=false;}
   }
   function project(lm,w,h){const vw=video.videoWidth||w,vh=video.videoHeight||h,sc=Math.max(w/vw,h/vh),dw=vw*sc,dh=vh*sc,ox=(w-dw)/2,oy=(h-dh)/2;return {x:lm.x*dw+ox-w/2,y:h/2-(lm.y*dh+oy),z:lm.z||0};}
