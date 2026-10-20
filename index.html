@@ -1327,6 +1327,31 @@
             .footer-top {
                 grid-template-columns: 1fr
             }
+            .whatsapp-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background-color: #25D366;
+  color: #FFFFFF;
+  font-weight: 600;
+  font-size: 16px;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+  width: 100%;
+  margin-top: 12px;
+}
+
+.whatsapp-btn:hover {
+  background-color: #1DA851;
+}
+
+.whatsapp-btn:active {
+  transform: scale(0.98);
+}
         }
     </style>
 </head>
@@ -1378,6 +1403,34 @@
               </div>
             </div>
         </section> -->
+        <!-- Product Selection Form -->
+<div class="product-selection">
+  <h3>Classic Leather Oxford</h3>
+  <p>Price: ৳2,500</p>
+
+  <!-- Size Selection -->
+  <label for="shoe-size">Select Size:</label>
+  <select id="shoe-size">
+    <option value="40">40 (EU)</option>
+    <option value="41">41 (EU)</option>
+    <option value="42" selected>42 (EU)</option>
+    <option value="43">43 (EU)</option>
+    <option value="44">44 (EU)</option>
+  </select>
+
+  <!-- Color Selection -->
+  <label for="shoe-color">Select Color:</label>
+  <select id="shoe-color">
+    <option value="Brown" selected>Brown Leather</option>
+    <option value="Black">Black Leather</option>
+  </select>
+
+  <!-- WhatsApp Action Button -->
+  <button id="whatsapp-order-btn" class="whatsapp-btn">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp" width="20" />
+    Order via WhatsApp
+  </button>
+</div>
 
         <div class="wrap trust">
             <div>Men · Women · Kids</div>
@@ -1766,6 +1819,36 @@
                 }
             });
         }
+
+        document.getElementById('whatsapp-order-btn').addEventListener('click', function() {
+  // 1. Enter your business WhatsApp number in international format (without + or spaces)
+  const phoneNumber = "8801700000000"; // Replace with your Bangladesh number (e.g., 88017XXXXXXXX)
+
+  // 2. Gather product details from the page
+  const productName = "Classic Leather Oxford";
+  const productPrice = "৳2,500";
+  const selectedSize = document.getElementById('shoe-size').value;
+  const selectedColor = document.getElementById('shoe-color').value;
+  const pageUrl = window.location.href; // Grabs current product link
+
+  // 3. Format the pre-filled message (using WhatsApp markdown formatting like *bold*)
+  const message = `Hi! I would like to order/inquire about this shoe:
+
+*Product:* ${productName}
+*Price:* ${productPrice}
+*Size:* ${selectedSize}
+*Color:* ${selectedColor}
+*Product Link:* ${pageUrl}
+
+Is this size currently available for delivery?`;
+
+  // 4. Encode the message text for URL inclusion
+  const encodedMessage = encodeURIComponent(message);
+
+  // 5. Create the WhatsApp API link and open in a new tab/app
+  const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
+  window.open(whatsappUrl, '_blank');
+});
 
         // Enable clicking on pagination dots (1, 2, 3)
         document.getElementById("heroDots").addEventListener("click", e => {
