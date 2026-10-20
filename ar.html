@@ -1339,6 +1339,7 @@
         .tryon-head p { color:var(--muted); font-size:14px; line-height:1.6; margin:0; }
         .tryon-stage { position:relative; width:100%; aspect-ratio:4/3; max-height:62vh; background:#111; border-radius:12px; overflow:hidden; }
         .tryon-stage video { width:100%; height:100%; object-fit:cover; transform:scaleX(-1); display:block; }
+        #tryOn3DCanvas { position:absolute; inset:0; width:100%; height:100%; z-index:2; pointer-events:none; }
         .tryon-stage .tryon-shoe { position:absolute; z-index:2; display:none; width:100px; height:auto; max-width:none; pointer-events:none; transform-origin:50% 50%; filter:drop-shadow(0 4px 4px #0005); }
         .tryon-status { font-size:13px; color:var(--muted); margin:12px 0; line-height:1.55; }
         .tryon-actions { display:flex; flex-wrap:wrap; gap:10px; }
@@ -1587,10 +1588,10 @@
         <div class="tryon-card">
             <button class="close" id="closeTryOn" aria-label="Close">×</button>
             <div class="tryon-head"><span class="eyebrow">ZUTSHOE · CAMERA TRY-ON</span><h2>See the shoe on your foot</h2><p>Allow camera access and stand back so your lower legs and feet are visible. For best results, use a clear side/angled view in a bright place.</p></div>
-            <div class="tryon-stage" id="tryOnStage"><video id="tryOnVideo" autoplay muted playsinline></video><img class="tryon-shoe" id="tryOnShoeLeft" alt="Selected shoe overlay on one foot"><img class="tryon-shoe" id="tryOnShoeRight" alt="Selected shoe overlay on the other foot"></div>
+            <div class="tryon-stage" id="tryOnStage"><video id="tryOnVideo" autoplay muted playsinline></video><canvas id="tryOn3DCanvas" aria-label="Live 3D shoe overlay"></canvas><img class="tryon-shoe" id="tryOnShoeLeft" alt="2D fallback shoe overlay on one foot"><img class="tryon-shoe" id="tryOnShoeRight" alt="2D fallback shoe overlay on the other foot"></div>
             <div class="tryon-status" id="tryOnStatus" aria-live="polite">Camera is off. Tap “Start camera” to begin.</div>
             <div class="tryon-actions"><button class="tryon-cta" id="startTryOnCamera">Start camera</button><button class="outline" id="stopTryOnCamera">Stop camera</button></div>
-            <div class="tryon-disclaimer"><strong>Prototype notice:</strong> This live filter tracks both feet and places 2D product-photo overlays. It is not yet a true 3D shoe fitting; accurate 3D try-on requires a 3D model for each shoe. Use it as a visual preview only—not for sizing advice.</div>
+            <div class="tryon-disclaimer"><strong>Temporary 3D demo:</strong> This uses a generic sample sneaker model, not the exact ZUTSHOE product. Foot alignment is an estimate from a single camera and can drift with camera angle, lighting, or occlusion. It is a visual demo—not a size or fit guarantee. The sample model is credited in the page code; confirm its asset license before commercial use.</div>
         </div>
     </div>
 
@@ -2185,11 +2186,37 @@
                 visibleCount++;
             });
 
-            tryOnStatus.textContent = visibleCount === 2
-                ? "Both feet tracked live. Overlay placement is approximate because these are 2D photos, not 3D shoe models."
-                : visibleCount === 1
-                    ? "One foot tracked. Move back and keep both feet visible for the best preview."
-                    : "Feet not detected clearly yet. Point the camera at both feet and ankles in bright light.";
+            if (window.ZUTSHOE_AR && window.ZUTSHOE_AR.ready) {
+                pairs.forEach((pair, i) => {
+                    const heel = lm[pair.heel], toe = lm[pair.toe];
+                    const visibility = Math.min(heel.visibility ?? 0, toe.visibility ?? 0);
+                    if (visibility < 0.32) { window.ZUTSHOE_AR.hideFoot(i); return; }
+                    const hx = stageRect.width - (heel.x * shownW - cropX);
+                    const hy = heel.y * shownH - cropY;
+                    const tx = stageRect.width - (toe.x * shownW - cropX);
+                    const ty = toe.y * shownH - cropY;
+                    const length = Math.hypot(tx - hx, ty - hy);
+                    window.ZUTSHOE_AR.updateFoot(i, {
+                        x: (hx + tx) / 2,
+                        y: (hy + ty) / 2,
+                        angle: Math.atan2(ty - hy, tx - hx),
+                        length: Math.max(35, length * 1.42),
+                        visible: true
+                    });
+                });
+                tryOnShoes.forEach(shoe => shoe.style.display = "none");
+                tryOnStatus.textContent = visibleCount === 2
+                    ? "3D demo live · both feet tracked. Keep feet visible and move slowly for steadier alignment."
+                    : visibleCount === 1
+                        ? "3D demo live · one foot tracked. Move back and keep both feet visible."
+                        : "3D demo ready · feet not detected clearly. Improve lighting and point the camera at both feet.";
+            } else {
+                tryOnStatus.textContent = visibleCount === 2
+                    ? "3D model is still loading. Showing the photo overlay temporarily."
+                    : visibleCount === 1
+                        ? "One foot tracked. Move back and keep both feet visible."
+                        : "Feet not detected clearly yet. Point the camera at both feet and ankles in bright light.";
+            }
         }
 
         // Stop camera if the page is hidden to avoid leaving it running in the background.
@@ -2220,5 +2247,98 @@
             }
         });
     </script>
+
+    <script type="module">
+      import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js';
+      import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/loaders/GLTFLoader.js';
+
+      (() => {
+        const canvas = document.getElementById('tryOn3DCanvas');
+        const stage = document.getElementById('tryOnStage');
+        const status = document.getElementById('tryOnStatus');
+        if (!canvas || !stage) return;
+        const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true, powerPreference: 'high-performance' });
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.8));
+        renderer.outputColorSpace = THREE.SRGBColorSpace;
+        renderer.setClearColor(0x000000, 0);
+        const scene = new THREE.Scene();
+        const camera = new THREE.OrthographicCamera(0, 1, 0, 1, 0.1, 5000);
+        camera.position.set(0, 0, 1500);
+        camera.lookAt(0, 0, 0);
+        scene.add(new THREE.HemisphereLight(0xffffff, 0x55515a, 2.0));
+        const key = new THREE.DirectionalLight(0xffffff, 2.5); key.position.set(-300, -500, 1000); scene.add(key);
+        const fill = new THREE.DirectionalLight(0xffb16b, 1.1); fill.position.set(500, 200, 600); scene.add(fill);
+        const feet = [null, null];
+        let template = null, modelLength = 1;
+
+        function resize() {
+          const w = Math.max(1, stage.clientWidth), h = Math.max(1, stage.clientHeight);
+          renderer.setSize(w, h, false);
+          camera.left = 0; camera.right = w; camera.top = 0; camera.bottom = h;
+          camera.near = 0.1; camera.far = 5000; camera.updateProjectionMatrix();
+          renderer.render(scene, camera);
+        }
+        function render() { renderer.render(scene, camera); }
+        function makeFootModel() {
+          const holder = new THREE.Group();
+          const model = template.clone(true);
+          const box = new THREE.Box3().setFromObject(model);
+          const size = new THREE.Vector3(); box.getSize(size);
+          const center = new THREE.Vector3(); box.getCenter(center);
+          model.position.sub(center);
+          // Normalize the longest horizontal dimension to the X axis (toe-to-heel direction).
+          if (size.z > size.x) model.rotation.y = Math.PI / 2;
+          holder.add(model);
+          holder.traverse(o => {
+            if (o.isMesh) { o.castShadow = false; o.receiveShadow = false; if (o.material) { o.material = o.material.clone(); o.material.side = THREE.DoubleSide; } }
+          });
+          return holder;
+        }
+        function ensureFoot(i) {
+          if (!feet[i] && template) { feet[i] = makeFootModel(); scene.add(feet[i]); }
+          return feet[i];
+        }
+        window.ZUTSHOE_AR = {
+          ready: false,
+          updateFoot(i, data) {
+            const obj = ensureFoot(i); if (!obj || !data.visible) return;
+            const w = stage.clientWidth, h = stage.clientHeight;
+            // Screen coordinates mapped directly into the transparent 3D canvas.
+            const targetScale = Math.max(0.001, data.length / modelLength);
+            obj.position.set(data.x, data.y, i * 0.1);
+            // Keep the sample model visually grounded; angle follows heel-to-toe landmarks.
+            obj.rotation.set(0, 0, data.angle);
+            obj.scale.setScalar(targetScale);
+            obj.visible = true;
+            render();
+          },
+          hideFoot(i) { if (feet[i]) { feet[i].visible = false; render(); } },
+          reset() { feet.forEach((f) => { if (f) f.visible = false; }); render(); }
+        };
+        const loader = new GLTFLoader();
+        // Temporary sample model from the public shoe-website demo repository (not a ZUTSHOE-specific asset).
+        const SAMPLE_GLB = 'https://raw.githubusercontent.com/hamdanthecoder/shoe-website-3d/main/public/models/shoe.glb';
+        loader.load(SAMPLE_GLB, gltf => {
+          template = gltf.scene;
+          const box = new THREE.Box3().setFromObject(template);
+          const size = new THREE.Vector3(); box.getSize(size);
+          modelLength = Math.max(size.x, size.z, 0.001);
+          window.ZUTSHOE_AR.ready = true;
+          document.querySelectorAll('.tryon-shoe').forEach(el => el.style.display = 'none');
+          if (status) status.textContent = '3D sneaker model loaded. Start the camera to try the live foot-tracking demo.';
+          resize();
+        }, undefined, err => {
+          console.error('Temporary sneaker GLB failed to load:', err);
+          if (status) status.textContent = 'The sample 3D model could not load. Check internet access; the photo-overlay fallback will be used.';
+          window.ZUTSHOE_AR.ready = false;
+        });
+        new ResizeObserver(resize).observe(stage);
+        window.addEventListener('resize', resize);
+        document.getElementById('stopTryOnCamera')?.addEventListener('click', () => window.ZUTSHOE_AR?.reset());
+        document.getElementById('closeTryOn')?.addEventListener('click', () => window.ZUTSHOE_AR?.reset());
+        resize();
+      })();
+    </script>
+
 </body>
 </html>
