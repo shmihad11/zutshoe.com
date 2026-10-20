@@ -1587,10 +1587,10 @@
         <div class="tryon-card">
             <button class="close" id="closeTryOn" aria-label="Close">×</button>
             <div class="tryon-head"><span class="eyebrow">ZUTSHOE · CAMERA TRY-ON</span><h2>See the shoe on your foot</h2><p>Allow camera access and stand back so your lower legs and feet are visible. For best results, use a clear side/angled view in a bright place.</p></div>
-            <div class="tryon-stage" id="tryOnStage"><video id="tryOnVideo" autoplay muted playsinline></video><img class="tryon-shoe" id="tryOnShoe" alt="Selected shoe overlay"></div>
+            <div class="tryon-stage" id="tryOnStage"><video id="tryOnVideo" autoplay muted playsinline></video><img class="tryon-shoe" id="tryOnShoeLeft" alt="Selected shoe overlay on one foot"><img class="tryon-shoe" id="tryOnShoeRight" alt="Selected shoe overlay on the other foot"></div>
             <div class="tryon-status" id="tryOnStatus" aria-live="polite">Camera is off. Tap “Start camera” to begin.</div>
             <div class="tryon-actions"><button class="tryon-cta" id="startTryOnCamera">Start camera</button><button class="outline" id="stopTryOnCamera">Stop camera</button></div>
-            <div class="tryon-disclaimer"><strong>Prototype notice:</strong> This is a camera-based 2D shoe overlay, not a true 3D AR fitting. It estimates foot position from pose landmarks, so placement and scale may be approximate. Use it as a visual preview only—not for sizing advice.</div>
+            <div class="tryon-disclaimer"><strong>Prototype notice:</strong> This live filter tracks both feet and places 2D product-photo overlays. It is not yet a true 3D shoe fitting; accurate 3D try-on requires a 3D model for each shoe. Use it as a visual preview only—not for sizing advice.</div>
         </div>
     </div>
 
@@ -2059,21 +2059,28 @@
         }); 
 
 
-        // Camera-based foot tracking prototype. True 3D fitting needs product-specific GLB/GLTF assets.
+        // Live dual-foot tracking prototype. 2D overlays work with product photos;
+        // product-specific GLB/GLTF models are required for a genuine 3D AR fitting.
         const tryOnModal = document.getElementById("tryOnModal");
         const tryOnVideo = document.getElementById("tryOnVideo");
-        const tryOnShoe = document.getElementById("tryOnShoe");
+        const tryOnShoeLeft = document.getElementById("tryOnShoeLeft");
+        const tryOnShoeRight = document.getElementById("tryOnShoeRight");
+        const tryOnShoes = [tryOnShoeLeft, tryOnShoeRight];
         const tryOnStage = document.getElementById("tryOnStage");
         const tryOnStatus = document.getElementById("tryOnStatus");
         let tryOnStream = null, tryOnPose = null, tryOnLoop = false, tryOnBusy = false;
+        const smoothedFeet = [null, null];
 
         document.getElementById("openTryOn").addEventListener("click", () => {
             if (!selectedProduct) return;
             const imageList = Array.isArray(selectedProduct.images) ? selectedProduct.images : [selectedProduct.img];
-            tryOnShoe.src = imageList[0] || "";
-            tryOnShoe.alt = selectedProduct.name + " camera overlay";
-            tryOnShoe.style.display = "none";
-            tryOnStatus.textContent = "Ready to start. Camera permission is required; use HTTPS or localhost.";
+            tryOnShoes.forEach((shoe, i) => {
+                shoe.src = imageList[0] || "";
+                shoe.alt = selectedProduct.name + (i === 0 ? " left-foot" : " right-foot") + " camera overlay";
+                shoe.style.display = "none";
+            });
+            smoothedFeet[0] = smoothedFeet[1] = null;
+            tryOnStatus.textContent = "Ready to start. Allow camera access, then keep both feet visible in the frame.";
             openModal(tryOnModal);
         });
 
@@ -2082,7 +2089,8 @@
             if (tryOnStream) tryOnStream.getTracks().forEach(track => track.stop());
             tryOnStream = null;
             tryOnVideo.srcObject = null;
-            tryOnShoe.style.display = "none";
+            tryOnShoes.forEach(shoe => shoe.style.display = "none");
+            smoothedFeet[0] = smoothedFeet[1] = null;
             if (tryOnPose && typeof tryOnPose.close === "function") { tryOnPose.close(); tryOnPose = null; }
             tryOnStatus.textContent = "Camera stopped.";
         }
@@ -2107,7 +2115,7 @@
                 tryOnPose.setOptions({modelComplexity:1, smoothLandmarks:true, enableSegmentation:false, minDetectionConfidence:0.5, minTrackingConfidence:0.5});
                 tryOnPose.onResults(onTryOnPoseResults);
                 tryOnLoop = true;
-                tryOnStatus.textContent = "Tracking… keep your foot fully visible. If the shoe is misplaced, adjust your angle and distance.";
+                tryOnStatus.textContent = "Live tracking started. Keep both feet and ankles visible, preferably in bright light.";
                 const processFrame = async () => {
                     if (!tryOnLoop) return;
                     if (!tryOnBusy && tryOnVideo.readyState >= 2) {
@@ -2127,44 +2135,61 @@
 
         function onTryOnPoseResults(results) {
             if (!tryOnLoop || !results.poseLandmarks || !tryOnVideo.videoWidth) {
-                tryOnShoe.style.display = "none";
+                tryOnShoes.forEach(shoe => shoe.style.display = "none");
                 return;
             }
             const lm = results.poseLandmarks;
-            // MediaPipe Pose indices: 29/30 heels, 31/32 foot-index landmarks.
-            const candidates = [{heel:29, toe:31}, {heel:30, toe:32}];
+            // MediaPipe Pose landmarks: left/right heels 29/30, foot-index 31/32.
+            const pairs = [{heel:29, toe:31}, {heel:30, toe:32}];
             const stageRect = tryOnStage.getBoundingClientRect();
             const vw = tryOnVideo.videoWidth, vh = tryOnVideo.videoHeight;
             const scale = Math.max(stageRect.width / vw, stageRect.height / vh);
             const shownW = vw * scale, shownH = vh * scale;
             const cropX = (shownW - stageRect.width) / 2, cropY = (shownH - stageRect.height) / 2;
-            let best = null;
-            candidates.forEach(pair => {
+            let visibleCount = 0;
+
+            pairs.forEach((pair, i) => {
                 const heel = lm[pair.heel], toe = lm[pair.toe];
-                const vis = Math.min(heel.visibility || 0, toe.visibility || 0);
-                if (vis > 0.35 && (!best || vis > best.vis)) best = {heel, toe, vis};
+                const visibility = Math.min(heel.visibility ?? 0, toe.visibility ?? 0);
+                const shoe = tryOnShoes[i];
+                if (visibility < 0.32) { shoe.style.display = "none"; smoothedFeet[i] = null; return; }
+
+                // The video is mirrored in CSS; mirror landmark x coordinates to match it.
+                const hx = stageRect.width - (heel.x * shownW - cropX);
+                const hy = heel.y * shownH - cropY;
+                const tx = stageRect.width - (toe.x * shownW - cropX);
+                const ty = toe.y * shownH - cropY;
+                const dx = tx - hx, dy = ty - hy;
+                const length = Math.hypot(dx, dy);
+                const target = {
+                    x: (hx + tx) / 2,
+                    y: (hy + ty) / 2 - Math.max(8, length * 0.08),
+                    width: Math.max(52, Math.min(stageRect.width * 0.38, length * 1.65)),
+                    angle: Math.atan2(dy, dx) * 180 / Math.PI
+                };
+                // Smooth frame-to-frame movement so the overlay feels more like a live filter.
+                const previous = smoothedFeet[i];
+                const alpha = 0.42;
+                const current = previous ? {
+                    x: previous.x + (target.x - previous.x) * alpha,
+                    y: previous.y + (target.y - previous.y) * alpha,
+                    width: previous.width + (target.width - previous.width) * alpha,
+                    angle: previous.angle + ((((target.angle - previous.angle) + 540) % 360) - 180) * alpha
+                } : target;
+                smoothedFeet[i] = current;
+                shoe.style.width = current.width + "px";
+                shoe.style.left = (current.x - current.width / 2) + "px";
+                shoe.style.top = (current.y - current.width * 0.2) + "px";
+                shoe.style.transform = `rotate(${current.angle}deg) scaleX(-1)`;
+                shoe.style.display = "block";
+                visibleCount++;
             });
-            if (!best) {
-                tryOnShoe.style.display = "none";
-                tryOnStatus.textContent = "I can’t see a clear foot yet. Step back and keep your feet and ankles in frame.";
-                return;
-            }
-            // Video is mirrored visually, so flip x coordinates when placing the overlay.
-            const hx = stageRect.width - (best.heel.x * shownW - cropX);
-            const hy = best.heel.y * shownH - cropY;
-            const tx = stageRect.width - (best.toe.x * shownW - cropX);
-            const ty = best.toe.y * shownH - cropY;
-            const dx = tx - hx, dy = ty - hy;
-            const length = Math.hypot(dx, dy);
-            const shoeWidth = Math.max(66, Math.min(stageRect.width * 0.52, length * 1.55));
-            const angle = Math.atan2(dy, dx) * 180 / Math.PI;
-            tryOnShoe.style.width = shoeWidth + "px";
-            tryOnShoe.style.left = ((hx + tx) / 2 - shoeWidth / 2) + "px";
-            tryOnShoe.style.top = ((hy + ty) / 2 - shoeWidth * 0.22) + "px";
-            // Many catalog photos show the toe pointing left; rotation follows heel-to-toe direction approximately.
-            tryOnShoe.style.transform = `rotate(${angle}deg) scaleX(-1)`;
-            tryOnShoe.style.display = "block";
-            tryOnStatus.textContent = "Foot detected. This is an approximate 2D overlay; try a transparent side-view shoe image for a cleaner preview.";
+
+            tryOnStatus.textContent = visibleCount === 2
+                ? "Both feet tracked live. Overlay placement is approximate because these are 2D photos, not 3D shoe models."
+                : visibleCount === 1
+                    ? "One foot tracked. Move back and keep both feet visible for the best preview."
+                    : "Feet not detected clearly yet. Point the camera at both feet and ankles in bright light.";
         }
 
         // Stop camera if the page is hidden to avoid leaving it running in the background.
