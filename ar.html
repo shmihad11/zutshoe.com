@@ -26,7 +26,7 @@
             width: 100%;
             height: 100%;
             --poster-color: transparent;
-            --progress-bar-color: #3b82f6;
+            --progress-bar-color: #2563eb;
             --progress-bar-height: 4px;
         }
 
@@ -35,7 +35,7 @@
             background-color: #000000;
             color: #ffffff;
             border-radius: 9999px;
-            padding: 12px 24px;
+            padding: 12px 20px;
             font-weight: 600;
             font-size: 0.875rem;
             display: inline-flex;
@@ -56,83 +56,80 @@
             transform: translateY(0);
         }
 
-        /* AR Prompt overlay styling */
-        #ar-prompt {
-            position: absolute;
-            left: 50%;
-            bottom: 80px;
-            transform: translateX(-50%);
-            display: none;
-        }
-
-        model-viewer[ar-status="session-started"] > #ar-prompt {
-            display: block;
-        }
-
-        /* Loading spinner styling */
+        /* Loading progress bar styling */
         .progress-bar {
             display: block;
-            width: 33%;
-            height: 10%;
-            max-height: 2px;
+            width: 50%;
+            height: 4px;
             position: absolute;
             left: 50%;
             top: 50%;
             transform: translate3d(-50%, -50%, 0);
-            border-radius: 2px;
+            border-radius: 4px;
             background-color: rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            z-index: 20;
         }
 
         .progress-bar.hide {
-            visibility: hidden;
-            transition: visibility 0.3s;
+            display: none;
         }
 
         .update-bar {
             background-color: #2563eb;
             width: 0%;
             height: 100%;
-            border-radius: 2px;
-            float: left;
-            transition: width 0.3s;
+            transition: width 0.2s ease;
+        }
+
+        /* Modal toast for alerts */
+        #toast {
+            transition: opacity 0.3s ease, transform 0.3s ease;
         }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-900 antialiased min-h-screen flex flex-col justify-between">
 
+    <!-- Toast Notification Overlay -->
+    <div id="toast" class="fixed top-20 right-4 bg-gray-900 text-white px-5 py-3 rounded-2xl shadow-2xl z-50 flex items-center gap-3 opacity-0 pointer-events-none transform translate-y-[-10px]">
+        <span id="toast-icon">ℹ️</span>
+        <span id="toast-message" class="text-sm font-medium">Notification message</span>
+    </div>
+
     <!-- Header Navigation -->
-    <header class="w-full bg-white/80 backdrop-blur-md border-b border-gray-200 sticky top-0 z-50">
+    <header class="w-full bg-white/80 backdrop-blur-md border-b border-gray-200 sticky top-0 z-40">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
             <div class="flex items-center gap-2">
                 <span class="bg-black text-white p-2 rounded-xl font-bold text-lg tracking-wider">KIX</span>
                 <span class="font-semibold text-lg text-gray-800">AR Studio</span>
             </div>
             <nav class="hidden md:flex gap-6 text-sm font-medium text-gray-600">
-                <a href="#" class="hover:text-black transition">New Releases</a>
-                <a href="#" class="hover:text-black transition">Men</a>
-                <a href="#" class="hover:text-black transition">Women</a>
-                <a href="#" class="text-black font-semibold border-b-2 border-black pb-1">WebAR Try-On</a>
+                <button class="nav-tab text-black font-semibold border-b-2 border-black pb-1">Overview</button>
+                <button class="nav-tab hover:text-black transition">Specifications</button>
+                <button class="nav-tab hover:text-black transition">Reviews (48)</button>
             </nav>
-            <button class="bg-gray-100 hover:bg-gray-200 text-gray-800 p-2.5 rounded-full transition">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-                </svg>
-            </button>
+            <div class="flex items-center gap-3">
+                <button id="cart-btn" class="relative bg-gray-100 hover:bg-gray-200 text-gray-800 p-2.5 rounded-full transition flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                    </svg>
+                    <span id="cart-badge" class="absolute -top-1 -right-1 bg-blue-600 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center hidden">0</span>
+                </button>
+            </div>
         </div>
     </header>
 
     <!-- Main Content Grid -->
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full flex-grow">
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full flex-grow">
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center min-h-[70vh]">
             
             <!-- Left Side: Interactive 3D Canvas / AR Viewer -->
             <div class="lg:col-span-7 bg-gradient-to-b from-gray-100 to-gray-200 rounded-3xl relative h-[450px] sm:h-[550px] lg:h-[620px] shadow-inner overflow-hidden border border-gray-200 flex items-center justify-center">
                 
-                <!-- 3D Model Viewer Component -->
+                <!-- 3D Model Viewer Component using reliable Khronos Group glTF binary URL -->
                 <model-viewer 
                     id="shoe-viewer"
-                    src="https://modelviewer.dev/shared-assets/models/glTF-Sample-Models/2.0/MaterialsVariantsShoe/glTF-Binary/MaterialsVariantsShoe.glb"
-                    ios-src=""
+                    src="https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Assets/main/Models/MaterialsVariantsShoe/glTF-Binary/MaterialsVariantsShoe.glb"
                     alt="Interactive 3D Sneaker Model"
                     ar
                     ar-modes="webxr scene-viewer quick-look"
@@ -143,30 +140,36 @@
                     shadow-softness="0.8"
                     exposure="1"
                     environment-image="neutral"
-                    poster="https://placehold.co/800x600/f3f4f6/9ca3af?text=Loading+3D+Model..."
-                    class="w-full h-full">
+                    class="w-full h-full cursor-grab active:cursor-grabbing">
 
-                    <!-- Custom AR Launcher Button -->
-                    <button slot="ar-button" class="ar-button absolute bottom-6 right-6 z-10">
+                    <!-- Custom AR Launcher Button inside Canvas -->
+                    <button slot="ar-button" id="ar-launch-btn" class="ar-button absolute bottom-6 right-6 z-10">
                         <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24">
                             <path d="M3 4c0-1.1.9-2 2-2h4v2H5v4H3V4zm16-2c1.1 0 2 .9 2 2v4h-2V4h-4V2h4zM3 20c0 1.1.9 2 2 2h4v-2H5v-4H3v4zm16 2c1.1 0 2-.9 2-2v-4h-2v4h-4v2h4zM12 6a6 6 0 1 0 0 12 6 6 0 0 0 0-12z"/>
                         </svg>
-                        <span>View in Your Space (AR)</span>
+                        <span>View in Space (AR)</span>
                     </button>
 
-                    <!-- Loading Progress Bar -->
-                    <div class="progress-bar" slot="progress-bar">
-                        <div class="update-bar"></div>
-                    </div>
-
-                    <!-- AR Prompt Icon -->
-                    <div id="ar-prompt">
-                        <img src="https://modelviewer.dev/shared-assets/icons/hand.png" alt="Move device to place shoe" class="w-12 h-12 opacity-75">
+                    <!-- Custom Loading Progress Bar -->
+                    <div id="loader-bar" class="progress-bar" slot="progress-bar">
+                        <div id="loader-progress" class="update-bar"></div>
                     </div>
                 </model-viewer>
 
-                <!-- Help Badge overlay -->
-                <div class="absolute top-4 left-4 bg-white/70 backdrop-blur-md px-3 py-1.5 rounded-full text-xs font-medium text-gray-700 shadow-sm flex items-center gap-1.5">
+                <!-- Top Left Quick Controls Overlay -->
+                <div class="absolute top-4 left-4 z-10 flex flex-wrap gap-2">
+                    <button id="toggle-rotate-btn" class="bg-white/80 hover:bg-white backdrop-blur-md px-3 py-1.5 rounded-full text-xs font-semibold text-gray-800 shadow-sm border border-gray-200/50 transition flex items-center gap-1.5">
+                        <span id="rotate-icon">⏸️</span>
+                        <span id="rotate-text">Pause Spin</span>
+                    </button>
+
+                    <button id="reset-camera-btn" class="bg-white/80 hover:bg-white backdrop-blur-md px-3 py-1.5 rounded-full text-xs font-semibold text-gray-800 shadow-sm border border-gray-200/50 transition flex items-center gap-1.5">
+                        🔄 Reset View
+                    </button>
+                </div>
+
+                <!-- Bottom Left Helper Badge -->
+                <div class="absolute bottom-4 left-4 z-10 bg-white/70 backdrop-blur-md px-3 py-1.5 rounded-full text-xs font-medium text-gray-700 shadow-sm hidden sm:flex items-center gap-1.5">
                     <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"></path>
                     </svg>
@@ -174,44 +177,48 @@
                 </div>
             </div>
 
-            <!-- Right Side: Product Information & Customization Controls -->
+            <!-- Right Side: Product Details & Interactive Controls -->
             <div class="lg:col-span-5 flex flex-col justify-center space-y-6">
                 <div>
-                    <span class="text-xs font-bold uppercase tracking-widest text-blue-600 bg-blue-50 px-3 py-1 rounded-full border border-blue-100">Interactive WebAR</span>
-                    <h1 class="text-3xl sm:text-4xl font-extrabold text-gray-900 mt-3 tracking-tight">KIX Velocity Pro AR</h1>
+                    <span class="text-xs font-bold uppercase tracking-widest text-blue-600 bg-blue-50 px-3 py-1 rounded-full border border-blue-100">WebAR Ready</span>
+                    <h1 class="text-3xl sm:text-4xl font-extrabold text-gray-900 mt-3 tracking-tight">KIX Velocity Pro 3D</h1>
                     <p class="text-2xl font-semibold text-gray-800 mt-2">$189.00</p>
                 </div>
 
                 <p class="text-gray-600 text-sm leading-relaxed">
-                    Experience the future of online footwear shopping. Rotate, zoom in high definition, or click the **AR View** button on your mobile device to place this sneaker right in your room at 1:1 real scale.
+                    Interactive 3D preview with real-time material switching. Tap any color below to customize the shoe live, or launch AR mode to project this model in your room at 1:1 scale.
                 </p>
 
-                <!-- Color / Material Variant Selector -->
+                <!-- Color Variant Selector -->
                 <div class="border-t border-b border-gray-200 py-5 space-y-3">
-                    <label class="block text-sm font-semibold text-gray-800">
-                        Select Colorway: <span id="color-name" class="font-normal text-gray-600">Street Red</span>
-                    </label>
+                    <div class="flex justify-between items-center">
+                        <label class="text-sm font-semibold text-gray-800">
+                            Colorway: <span id="color-name" class="font-normal text-blue-600 font-medium">Street Red</span>
+                        </label>
+                        <span id="variant-status" class="text-xs text-gray-400">3 Variants Available</span>
+                    </div>
 
-                    <div class="flex items-center space-x-3">
-                        <!-- Variant 1: Red -->
+                    <div class="flex items-center space-x-3" id="variant-buttons-container">
+                        <!-- Red Variant Button -->
                         <button 
-                            onclick="changeVariant('street', 'Street Red', this)" 
-                            class="variant-btn w-10 h-10 rounded-full bg-red-600 border-2 border-offset-2 border-black focus:outline-none transition-transform transform scale-110 shadow-md"
-                            title="Street Red">
+                            data-variant="street"
+                            data-title="Street Red"
+                            class="variant-btn w-10 h-10 rounded-full bg-red-600 border-2 border-offset-2 border-black focus:outline-none transition-transform transform scale-110 shadow-md flex items-center justify-center text-white text-xs">
+                            ✓
                         </button>
                         
-                        <!-- Variant 2: Beach / Blue -->
+                        <!-- Blue Variant Button -->
                         <button 
-                            onclick="changeVariant('beach', 'Ocean Blue', this)" 
-                            class="variant-btn w-10 h-10 rounded-full bg-blue-500 border-2 border-offset-2 border-transparent hover:border-gray-400 focus:outline-none transition-transform shadow-md"
-                            title="Ocean Blue">
+                            data-variant="beach"
+                            data-title="Ocean Blue"
+                            class="variant-btn w-10 h-10 rounded-full bg-blue-500 border-2 border-offset-2 border-transparent hover:border-gray-400 focus:outline-none transition-transform shadow-md flex items-center justify-center text-white text-xs">
                         </button>
 
-                        <!-- Variant 3: Midnight / Dark -->
+                        <!-- Dark Variant Button -->
                         <button 
-                            onclick="changeVariant('midnight', 'Midnight Black', this)" 
-                            class="variant-btn w-10 h-10 rounded-full bg-gray-900 border-2 border-offset-2 border-transparent hover:border-gray-400 focus:outline-none transition-transform shadow-md"
-                            title="Midnight Black">
+                            data-variant="midnight"
+                            data-title="Midnight Black"
+                            class="variant-btn w-10 h-10 rounded-full bg-gray-900 border-2 border-offset-2 border-transparent hover:border-gray-400 focus:outline-none transition-transform shadow-md flex items-center justify-center text-white text-xs">
                         </button>
                     </div>
                 </div>
@@ -220,41 +227,39 @@
                 <div class="space-y-3">
                     <div class="flex justify-between items-center text-sm font-semibold">
                         <span class="text-gray-800">Select Size (US)</span>
-                        <a href="#" class="text-blue-600 text-xs hover:underline">Size Guide</a>
+                        <button id="size-guide-btn" class="text-blue-600 text-xs hover:underline">Size Guide</button>
                     </div>
-                    <div class="grid grid-cols-5 gap-2">
-                        <button class="py-2.5 border border-gray-300 rounded-lg text-sm font-medium hover:border-black transition">8</button>
-                        <button class="py-2.5 border border-gray-300 rounded-lg text-sm font-medium hover:border-black transition">8.5</button>
-                        <button class="py-2.5 border border-black bg-black text-white rounded-lg text-sm font-medium transition">9</button>
-                        <button class="py-2.5 border border-gray-300 rounded-lg text-sm font-medium hover:border-black transition">9.5</button>
-                        <button class="py-2.5 border border-gray-300 rounded-lg text-sm font-medium hover:border-black transition">10</button>
+                    <div class="grid grid-cols-5 gap-2" id="size-buttons-container">
+                        <button class="size-btn py-2.5 border border-gray-300 rounded-xl text-sm font-medium hover:border-black transition">8</button>
+                        <button class="size-btn py-2.5 border border-gray-300 rounded-lg text-sm font-medium hover:border-black transition">8.5</button>
+                        <button class="size-btn py-2.5 border border-black bg-black text-white rounded-xl text-sm font-medium transition">9</button>
+                        <button class="size-btn py-2.5 border border-gray-300 rounded-xl text-sm font-medium hover:border-black transition">9.5</button>
+                        <button class="size-btn py-2.5 border border-gray-300 rounded-xl text-sm font-medium hover:border-black transition">10</button>
                     </div>
                 </div>
 
                 <!-- Action Buttons -->
                 <div class="pt-2 flex flex-col sm:flex-row gap-3">
-                    <button class="flex-1 bg-black hover:bg-gray-800 text-white font-semibold py-4 px-6 rounded-2xl shadow-lg transition duration-200 flex items-center justify-center gap-2">
+                    <button id="add-to-cart-btn" class="flex-1 bg-black hover:bg-gray-800 active:scale-95 text-white font-semibold py-4 px-6 rounded-2xl shadow-lg transition duration-200 flex items-center justify-center gap-2">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
                         </svg>
-                        Add to Bag
+                        <span>Add to Bag</span>
                     </button>
 
-                    <button id="trigger-ar-external" class="sm:hidden w-full bg-gray-100 hover:bg-gray-200 text-gray-900 font-semibold py-4 px-6 rounded-2xl border border-gray-300 transition flex items-center justify-center gap-2">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                    <button id="ar-external-btn" class="flex-1 bg-blue-50 hover:bg-blue-100 active:scale-95 text-blue-700 font-semibold py-4 px-6 rounded-2xl border border-blue-200 transition duration-200 flex items-center justify-center gap-2">
+                        <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24">
+                            <path d="M3 4c0-1.1.9-2 2-2h4v2H5v4H3V4zm16-2c1.1 0 2 .9 2 2v4h-2V4h-4V2h4zM3 20c0 1.1.9 2 2 2h4v-2H5v-4H3v4zm16 2c1.1 0 2-.9 2-2v-4h-2v4h-4v2h4zM12 6a6 6 0 1 0 0 12 6 6 0 0 0 0-12z"/>
                         </svg>
-                        Try AR on Phone
+                        <span>Launch AR View</span>
                     </button>
                 </div>
 
-                <!-- Mobile AR Note -->
-                <div class="bg-blue-50 border border-blue-100 rounded-xl p-3 flex items-start gap-3">
-                    <svg class="w-5 h-5 text-blue-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
-                    <p class="text-xs text-blue-800 leading-snug">
-                        <strong>WebAR Device Support:</strong> Works natively on iOS (Safari/AR Quick Look) and Android (Chrome/Scene Viewer). No external app download required!
+                <!-- Informational Callout -->
+                <div class="bg-gray-100 rounded-2xl p-4 flex items-start gap-3 border border-gray-200/80">
+                    <span class="text-lg">📱</span>
+                    <p class="text-xs text-gray-600 leading-relaxed">
+                        <strong>WebAR Support:</strong> Open on Android (Chrome) or iPhone (Safari) to project this model in your room using Quick Look or Scene Viewer.
                     </p>
                 </div>
 
@@ -264,70 +269,173 @@
 
     <!-- Footer -->
     <footer class="bg-white border-t border-gray-200 py-6 mt-12">
-        <div class="max-w-7xl mx-auto px-4 text-center text-xs text-gray-500 space-y-2">
-            <p>© 2026 KIX Footwear Store. Powered by Google WebAR & model-viewer.</p>
+        <div class="max-w-7xl mx-auto px-4 text-center text-xs text-gray-500 space-y-1">
+            <p>© 2026 KIX Footwear Store. Built with WebAR & Google model-viewer.</p>
         </div>
     </footer>
 
-    <!-- JavaScript Logic for Variant Switching and AR Interactions -->
+    <!-- Interactive JavaScript Logic -->
     <script>
-        const modelViewer = document.querySelector('#shoe-viewer');
-        const colorNameLabel = document.querySelector('#color-name');
+        document.addEventListener('DOMContentLoaded', () => {
+            const modelViewer = document.querySelector('#shoe-viewer');
+            const colorNameLabel = document.querySelector('#color-name');
+            const toggleRotateBtn = document.querySelector('#toggle-rotate-btn');
+            const rotateIcon = document.querySelector('#rotate-icon');
+            const rotateText = document.querySelector('#rotate-text');
+            const resetCameraBtn = document.querySelector('#reset-camera-btn');
+            const addToCartBtn = document.querySelector('#add-to-cart-btn');
+            const arExternalBtn = document.querySelector('#ar-external-btn');
+            const cartBadge = document.querySelector('#cart-badge');
+            const toast = document.querySelector('#toast');
+            const toastMessage = document.querySelector('#toast-message');
+            const toastIcon = document.querySelector('#toast-icon');
 
-        // Handles material variant changes dynamically on the 3D glTF model
-        async function changeVariant(variantName, displayName, buttonElement) {
-            if (!modelViewer) return;
+            let cartCount = 0;
+            let isRotating = true;
 
-            // Wait until model finishes loading materials
-            if (modelViewer.availableVariants.length > 0) {
-                // Find matching variant name in glTF file (supports "street", "beach", "midnight")
-                const availableVariants = modelViewer.availableVariants;
-                const match = availableVariants.find(v => v.toLowerCase().includes(variantName.toLowerCase()));
-
-                if (match) {
-                    modelViewer.variantName = match;
-                } else if (availableVariants[0]) {
-                    // Fallback to indexed selection if specific name differs
-                    modelViewer.variantName = availableVariants[0];
-                }
+            // Toast Notification Handler
+            function showToast(message, icon = 'ℹ️') {
+                toastMessage.textContent = message;
+                toastIcon.textContent = icon;
+                toast.classList.remove('opacity-0', 'pointer-events-none', 'translate-y-[-10px]');
+                
+                setTimeout(() => {
+                    toast.classList.add('opacity-0', 'pointer-events-none', 'translate-y-[-10px]');
+                }, 3000);
             }
 
-            // Update color name text in UI
-            if (colorNameLabel) {
-                colorNameLabel.textContent = displayName;
+            // Progress bar handler for model loading
+            if (modelViewer) {
+                modelViewer.addEventListener('progress', (event) => {
+                    const progressBar = document.querySelector('#loader-bar');
+                    const progressVal = document.querySelector('#loader-progress');
+                    if (progressVal) {
+                        progressVal.style.width = `${event.detail.totalProgress * 100}%`;
+                    }
+                    if (event.detail.totalProgress === 1) {
+                        if (progressBar) progressBar.classList.add('hide');
+                    }
+                });
+
+                modelViewer.addEventListener('load', () => {
+                    showToast('3D Model Loaded Successfully!', '✨');
+                });
             }
 
-            // Update UI Button border styling
-            document.querySelectorAll('.variant-btn').forEach(btn => {
-                btn.classList.remove('border-black', 'scale-110');
-                btn.classList.add('border-transparent');
+            // Color Variant Buttons Logic
+            const variantButtons = document.querySelectorAll('.variant-btn');
+            variantButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const variantKey = btn.getAttribute('data-variant');
+                    const variantTitle = btn.getAttribute('data-title');
+
+                    // Apply variant to 3D model if available
+                    if (modelViewer && modelViewer.availableVariants && modelViewer.availableVariants.length > 0) {
+                        const matchedVariant = modelViewer.availableVariants.find(v => 
+                            v.toLowerCase().includes(variantKey.toLowerCase())
+                        );
+                        if (matchedVariant) {
+                            modelViewer.variantName = matchedVariant;
+                        } else {
+                            modelViewer.variantName = modelViewer.availableVariants[0];
+                        }
+                    }
+
+                    // Update UI text and active states
+                    colorNameLabel.textContent = variantTitle;
+
+                    variantButtons.forEach(b => {
+                        b.classList.remove('border-black', 'scale-110');
+                        b.classList.add('border-transparent');
+                        b.textContent = '';
+                    });
+
+                    btn.classList.remove('border-transparent');
+                    btn.classList.add('border-black', 'scale-110');
+                    btn.textContent = '✓';
+
+                    showToast(`Colorway switched to ${variantTitle}`, '🎨');
+                });
             });
 
-            buttonElement.classList.remove('border-transparent');
-            buttonElement.classList.add('border-black', 'scale-110');
-        }
-
-        // External mobile AR button trigger handler
-        const externalArBtn = document.querySelector('#trigger-ar-external');
-        if (externalArBtn) {
-            externalArBtn.addEventListener('click', () => {
-                if (modelViewer.canActivateAR) {
-                    modelViewer.activateAR();
-                } else {
-                    alert('WebAR is supported natively on iOS (Safari) and Android (Chrome) mobile devices.');
-                }
-            });
-        }
-
-        // Progress bar hide when loaded
-        modelViewer.addEventListener('progress', (event) => {
-            const progressBar = document.querySelector('.progress-bar');
-            const updatingBar = document.querySelector('.update-bar');
-            if (updatingBar) {
-                updatingBar.style.width = `${event.detail.totalProgress * 100}%`;
+            // Toggle Auto-Rotation
+            if (toggleRotateBtn && modelViewer) {
+                toggleRotateBtn.addEventListener('click', () => {
+                    isRotating = !isRotating;
+                    if (isRotating) {
+                        modelViewer.setAttribute('auto-rotate', '');
+                        rotateIcon.textContent = '⏸️';
+                        rotateText.textContent = 'Pause Spin';
+                    } else {
+                        modelViewer.removeAttribute('auto-rotate');
+                        rotateIcon.textContent = '▶️';
+                        rotateText.textContent = 'Auto Spin';
+                    }
+                });
             }
-            if (event.detail.totalProgress === 1) {
-                if (progressBar) progressBar.classList.add('hide');
+
+            // Reset Camera View
+            if (resetCameraBtn && modelViewer) {
+                resetCameraBtn.addEventListener('click', () => {
+                    modelViewer.cameraOrbit = '0deg 75deg 105%';
+                    modelViewer.fieldOfView = 'auto';
+                    showToast('Camera reset to default position', '🔄');
+                });
+            }
+
+            // Size Selector Button Switching
+            const sizeButtons = document.querySelectorAll('.size-btn');
+            sizeButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    sizeButtons.forEach(b => {
+                        b.classList.remove('bg-black', 'text-white', 'border-black');
+                        b.classList.add('border-gray-300');
+                    });
+                    btn.classList.remove('border-gray-300');
+                    btn.classList.add('bg-black', 'text-white', 'border-black');
+                });
+            });
+
+            // Add to Bag Button Handler
+            if (addToCartBtn) {
+                addToCartBtn.addEventListener('click', () => {
+                    cartCount++;
+                    cartBadge.textContent = cartCount;
+                    cartBadge.classList.remove('hidden');
+                    showToast(`Added to Bag! Total items: ${cartCount}`, '🛒');
+                });
+            }
+
+            // Launch AR View External Trigger
+            if (arExternalBtn && modelViewer) {
+                arExternalBtn.addEventListener('click', () => {
+                    if (modelViewer.canActivateAR) {
+                        modelViewer.activateAR();
+                    } else {
+                        showToast('AR requires iOS (Safari) or Android (Chrome) mobile camera.', '📱');
+                    }
+                });
+            }
+
+            // Navigation Tabs Switch
+            const navTabs = document.querySelectorAll('.nav-tab');
+            navTabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    navTabs.forEach(t => {
+                        t.classList.remove('text-black', 'font-semibold', 'border-b-2', 'border-black', 'pb-1');
+                        t.classList.add('hover:text-black');
+                    });
+                    tab.classList.add('text-black', 'font-semibold', 'border-b-2', 'border-black', 'pb-1');
+                    tab.classList.remove('hover:text-black');
+                });
+            });
+
+            // Size Guide Modal Alert
+            const sizeGuideBtn = document.querySelector('#size-guide-btn');
+            if (sizeGuideBtn) {
+                sizeGuideBtn.addEventListener('click', () => {
+                    showToast('US 8: 25cm | US 9: 26cm | US 10: 27cm', '📏');
+                });
             }
         });
     </script>
